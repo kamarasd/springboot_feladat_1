@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+<title>HR application</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+	<h1>Employee list</h1>
+
+	<nav class="navbar">
+		<a href="/" class="btn btn-primary">Go to the front page</a>
+	</nav>
+	
+	<table class="table">
+		<thead  class="thead-dark">
+			<th>ID</th>
+			<th>Name</th>
+			<th>Post</th>
+			<th>Salary</th>
+			<th>Working date</th>
+		</thead >
+		<tbody th:each="employees : ${employees}">
+			<th scope="row" th:text="${employees.employeeId}">id</th >
+			<td th:text="${employees.name}">name</td>
+			<td th:text="${employees.post}">post</td>
+			<td th:text="${employees.salary}">salary</td>
+			<td th:text="${employees.workingDate}">workingdate</td>
+		</tbody>
+	</table >
+	
+	
+	<h3> Add new employee</h3>
+	<form method="POST" th:action="@{/employees}" th:object="${newEmployee}">
+		<div class="form-group">
+			<label for="id">Id:</label> 
+			<input class="form-control" id="id" th:field="*{employeeId}"  />
+		</div>
+		<div class="form-group">
+			<label for="name">Name:</label> 
+			<input class="form-control" id="name" th:field="*{name}"  />
+		</div>
+		<div class="form-group">
+			<label for="post">Post:</label> 
+			<input class="form-control" id="post" th:field="*{post}"  />
+		</div>
+		<div class="form-group">
+			<label for="salary">Salary:</label> 
+			<input class="form-control" id="salary" th:field="*{salary}"  />
+		</div>
+		<div class="form-group">
+			<label for="workingDate">Working date:</label> 
+			<input class="form-control" id="workingDate" th:field="*{workingDate}" type="datetime-local" />
+		</div>
+		<input class="btn btn-primary" type="submit" value="Add">
+	</form>
+</div>
+</body>
+</html>
