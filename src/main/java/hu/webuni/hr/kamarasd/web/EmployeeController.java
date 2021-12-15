@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import hu.webuni.kamarasd.employeeDto.EmployeeDto;
+import hu.webuni.kamarasd.dto.EmployeeDto;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -31,7 +31,6 @@ public class EmployeeController {
 		employees.put(2L, new EmployeeDto(2, "Matr Ica", "Alkalmazott", 150000, LocalDateTime.parse("2004-05-12T08:00:00")));
 	}
 
-	
 	@GetMapping
 	public List<EmployeeDto> getAll() {
 		return new ArrayList<>(employees.values());

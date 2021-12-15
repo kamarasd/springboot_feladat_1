@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+<title>HR application</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+	<h1>Modify employee</h1>
+
+	<nav class="navbar">
+		<a href="/" class="btn btn-primary">Go to the front page</a>
+	</nav>
+	
+	<form method="POST" th:each="emp : ${editEmployee}" th:action="@{'/modifyEmployee/'}" th:object="${editEmployee}" >
+		<div class="form-group">
+			<input class="form-control" id="employeeId" th:name="employeeId" th:value="${emp.employeeId}" type="hidden"  />
+		</div>
+		<div class="form-group">
+			<label for="name">Name:</label> 
+			<input class="form-control" id="name" th:name="name" th:value="${emp.name}"  />
+		</div>
+		<div class="form-group">
+			<label for="post">Post:</label> 
+			<input class="form-control" id="post" th:name="post" th:value="${emp.post}" />
+		</div>
+		<div class="form-group">
+			<label for="salary">Salary:</label> 
+			<input class="form-control" id="salary" th:name="salary" th:value="${emp.salary}" />
+		</div>
+		<div class="form-group">
+			<label for="workingDate">Working date:</label> 
+			<input class="form-control" id="workingDate" th:name="workingDate" th:value="${emp.workingDate}" type="datetime-local" />
+		</div>
+		<input class="btn btn-primary" type="submit" value="Modify">
+		<a href="/employees" class="btn btn-primary">Cancel</a>
+	</form>
+</div>
+</body>
+</html>

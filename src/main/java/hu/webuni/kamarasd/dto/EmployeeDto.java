@@ -1,4 +1,4 @@
-package hu.webuni.kamarasd.employeeDto;
+package hu.webuni.kamarasd.dto;
 
 import java.time.LocalDateTime;
 
