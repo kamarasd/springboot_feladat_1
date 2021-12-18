@@ -3,16 +3,17 @@ package hu.webuni.kamarasd.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class CompanyDto {
 	
-	public Long id;
-	public String companyNo;
-	public String companyName;
-	public String companyAddress;
-	public List<EmployeeDto> employeeList = new ArrayList<>();
+	private Long id;
+	private String companyNo;
+	private String companyName;
+	private String companyAddress;
+	List<EmployeeDto> employeeList = new ArrayList<>();
+	
+	public CompanyDto() {
+		
+	}
 	
 	public CompanyDto(long id, String companyNo, String companyName, String companyAddress, List<EmployeeDto> employeeList) {
 		super();
@@ -20,14 +21,6 @@ public class CompanyDto {
 		this.companyNo = companyNo;
 		this.companyName = companyName;
 		this.companyAddress = companyAddress;
-		this.employeeList = employeeList;
-	}
-
-	public List<EmployeeDto> getEmployeeList() {
-		return employeeList;
-	}
-
-	public void setEmployeeList(List<EmployeeDto> employeeList) {
 		this.employeeList = employeeList;
 	}
 
@@ -61,6 +54,14 @@ public class CompanyDto {
 	
 	public void setCompanyAddress(String companyAddress) {
 		this.companyAddress = companyAddress;
+	}
+	
+	public List<EmployeeDto> getEmployeeList() {
+		return employeeList;
+	}
+
+	public void setEmployeeList(List<EmployeeDto> employeeList) {
+		this.employeeList = employeeList;
 	}
 
 }

@@ -4,11 +4,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Collector;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import hu.webuni.hr.kamarasd.Employee;
+import hu.webuni.hr.kamarasd.service.EmployeeService;
 import hu.webuni.kamarasd.dto.CompanyDto;
 import hu.webuni.kamarasd.dto.EmployeeDto;
 
@@ -29,13 +32,20 @@ public class CompanyController {
 	
 	private Map<Long, CompanyDto> companies = new HashMap<>();
 	
+	@Autowired
+	EmployeeService employeeService;
+
+	
 	@GetMapping
-	public Collection<CompanyDto> getAll(@RequestParam(defaultValue = "false") String type) {
-			if(type != "true") { 
-				Map<Object, CompanyDto> companies2 = companies.entrySet().stream().collect(Collectors.toMap(key -> (Long)key.getKey(), value -> {value.getValue().setEmployeeList(null); return (CompanyDto)value;}));
-				return companies2.values();
+	public List<CompanyDto> getAll(@RequestParam(required = false) Boolean type) {
+			if(type == true && type != null) { 
+				return companies
+						.values()
+						.stream()
+						.map(comp -> new CompanyDto(comp.getId(), comp.getCompanyNo(), comp.getCompanyName(), comp.getCompanyAddress(), null))
+						.collect(Collectors.toList());
 			} else {
-				return companies.values();
+				return new ArrayList<>(companies.values());	
 			}
 	}
 	
@@ -57,7 +67,10 @@ public class CompanyController {
 			return ResponseEntity.notFound().build();
 		} else {
 			companyDto.setId(id);
+			//Save employees to the modified company
+			List<EmployeeDto> saveEmployees = companies.get(id).getEmployeeList();
 			companies.put(id, companyDto);
+			companies.get(id).setEmployeeList(saveEmployees);
 			return ResponseEntity.ok(companyDto);
 		}
 		
@@ -68,7 +81,7 @@ public class CompanyController {
 		companies.remove(id);
 	}
 	
-	@PutMapping("/addEmployee/{id}")
+	@PostMapping("/addEmployee/{id}")
 	public ResponseEntity<CompanyDto> addEmployeeToCompany(@PathVariable Long id, @RequestBody EmployeeDto employeeDto) {
 		if(!companies.containsKey(id)) {
 			return ResponseEntity.notFound().build();
@@ -86,21 +99,25 @@ public class CompanyController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		List<EmployeeDto> modifyEmployee = companies.get(id).getEmployeeList();
-		modifyEmployee.remove(employeeId);
-		companies.get(id).setEmployeeList(modifyEmployee);
+		CompanyDto company = companies.get(id);
+		company.getEmployeeList().removeIf(employee -> employee.getEmployeeId() == employeeId);
 		
-		return ResponseEntity.ok(companies.get(id));
+		return ResponseEntity.ok(company);
 	}
 	
-	@PostMapping("/updateEmployee/{id}")
+	@PutMapping("/updateEmployee/{id}")
 	public ResponseEntity<CompanyDto> updateEmployeeInCompany(@PathVariable Long id, @RequestBody List<EmployeeDto> employeeDto) {
 		if(!companies.containsKey(id)) {
 			return ResponseEntity.notFound().build();
 		}
 		
 		companies.get(id).setEmployeeList(employeeDto);
-		return ResponseEntity.ok(companies.get(id));
+		return ResponseEntity.ok(companies.get(id));	
+	}
+	
+	@GetMapping("/raiseSalary")
+	public int getSalary(@RequestBody Employee employee) {
+		return employeeService.getPayRaisePercent(employee);
 		
 	}
 }
