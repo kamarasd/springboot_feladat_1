@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import hu.webuni.hr.kamarasd.Employee;
+import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.config.EmployeeConfigProperties;
 
 @Service

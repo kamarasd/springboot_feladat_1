@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import hu.webuni.hr.kamarasd.service.SalaryService;
 
+import hu.webuni.hr.kamarasd.model.Employee;
+
 
 @SpringBootApplication
 public class HrApplication implements CommandLineRunner {

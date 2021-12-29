@@ -3,11 +3,11 @@ package hu.webuni.hr.kamarasd.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import hu.webuni.hr.kamarasd.Employee;
+import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.config.EmployeeConfigProperties;
 
 @Service
-public class DefaultEmployeeService implements EmployeeService{
+public class DefaultEmployeeService extends EmployeeServiceClass implements EmployeeService{
 	
 	@Autowired
 	EmployeeConfigProperties config;

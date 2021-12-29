@@ -1,13 +1,11 @@
 package hu.webuni.hr.kamarasd.web;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,61 +16,61 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import hu.webuni.kamarasd.employeeDto.EmployeeDto;
+import hu.webuni.hr.kamarasd.model.Employee;
+import hu.webuni.hr.kamarasd.dto.EmployeeDto;
+import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
+import hu.webuni.hr.kamarasd.service.DefaultEmployeeService;
 
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
 	
-	private Map<Long, EmployeeDto> employees = new HashMap<>();
+	@Autowired
+	DefaultEmployeeService defaultEmployeeService;	
 	
-	{
-		employees.put(1L, new EmployeeDto(1, "Bekő Tóni", "Alkalmazott", 200000, LocalDateTime.parse("2005-01-01T08:00:00")));
-		employees.put(2L, new EmployeeDto(2, "Matr Ica", "Alkalmazott", 150000, LocalDateTime.parse("2004-05-12T08:00:00")));
-	}
+	@Autowired
+	EmployeeMapper employeeMapper;
 
 	
 	@GetMapping
 	public List<EmployeeDto> getAll() {
-		return new ArrayList<>(employees.values());
+		return employeeMapper.employeeToDtos(defaultEmployeeService.getAll());
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<EmployeeDto> getById(@PathVariable Long id) {
-		EmployeeDto employeeDto = employees.get(id);
-		return (employeeDto != null ) ? ResponseEntity.ok(employeeDto) : ResponseEntity.notFound().build();
+		
+		Employee employee = defaultEmployeeService.findById(id);
+		return (employee != null ) ? ResponseEntity.ok(employeeMapper.employeeToDto(employee)) : ResponseEntity.notFound().build();
 	}
 	
 	@PostMapping
-	public EmployeeDto createEmployee(@RequestBody EmployeeDto employeeDto) {
-		employees.put(employeeDto.getEmployeeId(), employeeDto);
-		return employeeDto;
+	public EmployeeDto createEmployee(@RequestBody @Valid EmployeeDto employeeDto) {
+		Employee employee = defaultEmployeeService.saveEmployee(employeeMapper.dtoToEmployee(employeeDto));
+		return employeeMapper.employeeToDto(employee);
 	}
 	
 	@PutMapping("/{id}")
-	public ResponseEntity<EmployeeDto> changeEmployee(@PathVariable Long id,@RequestBody EmployeeDto employeeDto) {
-		if(!employees.containsKey(id)) {
+	public ResponseEntity<EmployeeDto> changeEmployee(@PathVariable Long id, @RequestBody @Valid EmployeeDto employeeDto) {
+		if(defaultEmployeeService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		employeeDto.setEmployeeId(id);
-		employees.put(id, employeeDto);
-		return ResponseEntity.ok(employeeDto);
+		Employee employee = defaultEmployeeService.changeEmployee(id, employeeMapper.dtoToEmployee(employeeDto));
+		return ResponseEntity.ok(employeeMapper.employeeToDto(employee));
 	}
 	
 	@DeleteMapping("/{id}")
 	public void deleteEmployee(@PathVariable Long id) {
-		employees.remove(id);
+		defaultEmployeeService.deleteEmployee(id);
 	}
 	
 	@GetMapping("/salaryLimit/{limit}")
-	public ResponseEntity<Collection<EmployeeDto>> salaryLimitCheck(@PathVariable Integer limit) {
+	public ResponseEntity<Collection<Employee>> salaryLimitCheck(@PathVariable Integer limit) {
+		
+	Collection<Employee> employee = defaultEmployeeService.salaryLimitCheck(limit);
 	
-	Collection<EmployeeDto> employeeDto = employees.entrySet().stream().
-			filter(employee -> employee.getValue().getSalary() > limit).
-			collect(Collectors.toMap(employee -> employee.getKey(),employee -> employee.getValue())).values();
-	
-	return (!employeeDto.isEmpty()) ? ResponseEntity.ok(employeeDto) : ResponseEntity.notFound().build();
+	return (employee != null) ? ResponseEntity.ok(employee) : ResponseEntity.notFound().build();
 	}
 
 }

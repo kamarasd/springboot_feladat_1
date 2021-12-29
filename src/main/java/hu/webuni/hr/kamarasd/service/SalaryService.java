@@ -2,7 +2,7 @@ package hu.webuni.hr.kamarasd.service;
 
 import org.springframework.stereotype.Service;
 
-import hu.webuni.hr.kamarasd.Employee;
+import hu.webuni.hr.kamarasd.model.Employee;
 
 @Service
 public class SalaryService{

@@ -1,8 +1,5 @@
-<<<<<<< Updated upstream:src/main/java/hu/webuni/kamarasd/employeeDto/EmployeeDto.java
-package hu.webuni.kamarasd.employeeDto;
-=======
 package hu.webuni.hr.kamarasd.dto;
->>>>>>> Stashed changes:src/main/java/hu/webuni/hr/kamarasd/dto/EmployeeDto.java
+
 
 import java.time.LocalDateTime;
 
