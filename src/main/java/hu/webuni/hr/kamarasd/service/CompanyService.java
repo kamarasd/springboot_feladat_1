@@ -7,15 +7,12 @@ import java.util.Map;
 
 import java.util.stream.Collectors;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
 import hu.webuni.hr.kamarasd.model.Company;
-import hu.webuni.hr.kamarasd.model.Employee;
 
 @Service
 public class CompanyService {
