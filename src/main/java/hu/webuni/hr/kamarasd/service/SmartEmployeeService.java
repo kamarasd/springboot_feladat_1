@@ -10,7 +10,7 @@ import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.config.EmployeeConfigProperties;
 
 @Service
-public class SmartEmployeeService implements EmployeeService {
+public class SmartEmployeeService extends EmployeeService {
 	
 	@Autowired
 	EmployeeConfigProperties config;

@@ -3,8 +3,6 @@ package hu.webuni.hr.kamarasd.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import hu.webuni.hr.kamarasd.dto.EmployeeDto;
-
 public class Company {
 
 
@@ -12,13 +10,13 @@ public class Company {
 	private String companyNo;
 	private String companyName;
 	private String companyAddress;
-	List<EmployeeDto> employeeList = new ArrayList<>();
+	private List<Employee> employeeList = new ArrayList<>();
 	
 	public Company() {
 		
 	}
 	
-	public Company(long id, String companyNo, String companyName, String companyAddress, List<EmployeeDto> employeeList) {
+	public Company(long id, String companyNo, String companyName, String companyAddress, List<Employee> employeeList) {
 		this.id = id;
 		this.companyNo = companyNo;
 		this.companyName = companyName;
@@ -58,11 +56,11 @@ public class Company {
 		this.companyAddress = companyAddress;
 	}
 	
-	public List<EmployeeDto> getEmployeeList() {
+	public List<Employee> getEmployeeList() {
 		return employeeList;
 	}
 
-	public void setEmployeeList(List<EmployeeDto> employeeList) {
+	public void setEmployeeList(List<Employee> employeeList) {
 		this.employeeList = employeeList;
 	}
 

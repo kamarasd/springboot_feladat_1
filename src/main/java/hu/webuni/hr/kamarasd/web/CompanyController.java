@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.dto.CompanyDto;
-import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.CompanyMapper;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
 import hu.webuni.hr.kamarasd.model.Company;
@@ -73,9 +72,9 @@ public class CompanyController {
 		} else {
 			company.setId(id);
 			//Save employees to the modified company
-			List<EmployeeDto> employee = companyService.getEmployeeFromCompany(id);
+			List<Employee> employee = companyService.getEmployeeFromCompany(id);
 			company = companyService.saveCompany(companyMapper.dtoToCompany(companyDto));
-			companyService.addEmployeeToCompany(company, id, employee);
+			companyService.addEmployeeToCompany(id, employee);
 			return ResponseEntity.ok(companyMapper.companyToDto(company));
 		}
 		
@@ -87,13 +86,13 @@ public class CompanyController {
 	}
 	
 	@PostMapping("/addEmployee/{id}")
-	public ResponseEntity<CompanyDto> addEmployeeToCompany(@PathVariable Long id, @RequestBody @Valid EmployeeDto employeeDto) {
+	public ResponseEntity<CompanyDto> addEmployeeToCompany(@PathVariable Long id, @RequestBody @Valid Employee employeeList) {
 		Company company = companyService.findById(id);
 		if(company == null) {
 			return ResponseEntity.notFound().build();
 		}
 
-		company = companyService.saveEmployeeToCompany(company, id, employeeDto);
+		company = companyService.saveEmployeeToCompany(id, employeeList);
 		return ResponseEntity.ok(companyMapper.companyToDto(company));
 	}
 	
@@ -104,18 +103,18 @@ public class CompanyController {
 			return ResponseEntity.notFound().build();
 		}
 		
-		company = companyService.deleteEmployeeFromCompany(company, id, employeeId);		
+		companyService.deleteEmployeeFromCompany(id, employeeId);		
 		return ResponseEntity.ok(companyMapper.companyToDto(company));
 	}
 	
-	@PutMapping("/updateAllEmployee/{id}")
-	public ResponseEntity<CompanyDto> updateEmployeesInCompany(@PathVariable Long id, @RequestBody @Valid List<EmployeeDto> employeeDto) {
+	@PostMapping("/updateAllEmployee/{id}")
+	public ResponseEntity<CompanyDto> updateEmployeesInCompany(@PathVariable Long id, @RequestBody @Valid List<Employee> employeeList) {
 		Company company = companyService.findById(id);
 		if(company == null) {
 			return ResponseEntity.notFound().build();
 		}
 	
-		company = companyService.changeAllEmployeeInCompany(company, id, employeeDto);
+		company = companyService.changeAllEmployeeInCompany(id, employeeList);
 		return ResponseEntity.ok(companyMapper.companyToDto(company));	
 	}
 	

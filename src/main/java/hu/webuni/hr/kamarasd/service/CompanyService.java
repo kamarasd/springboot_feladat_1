@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
 import hu.webuni.hr.kamarasd.model.Company;
+import hu.webuni.hr.kamarasd.model.Employee;
 
 @Service
 public class CompanyService {
@@ -52,29 +52,29 @@ public class CompanyService {
 		companies.remove(id);
 	}
 	
-	public List<EmployeeDto> getEmployeeFromCompany(Long id) {
+	public List<Employee> getEmployeeFromCompany(Long id) {
 		return companies.get(id).getEmployeeList();
 	}
 	
-	public Company saveEmployeeToCompany(Company company, Long id, EmployeeDto employee) {
-		List<EmployeeDto> addEmployee = getEmployeeFromCompany(id);
+	public Company saveEmployeeToCompany(Long id, Employee employee) {
+		List<Employee> addEmployee = getEmployeeFromCompany(id);
 		addEmployee.add(employee);
 		companies.get(id).setEmployeeList(addEmployee);
-		return company;
+		return companies.get(id);
 	}
 	
-	public Company deleteEmployeeFromCompany(Company company, Long companyId, Long employeeId) {
+	public Company deleteEmployeeFromCompany(Long companyId, Long employeeId) {
 		companies.get(companyId).getEmployeeList().removeIf(employee -> employee.getEmployeeId() == employeeId);
-		return company;
+		return companies.get(companyId);
 	}
 	
-	public Company addEmployeeToCompany(Company company, Long id, List<EmployeeDto> employeeDto) {
-		companies.get(id).setEmployeeList(employeeDto);
-		return company;
+	public Company addEmployeeToCompany(Long id, List<Employee> employeeList) {
+		companies.get(id).setEmployeeList(employeeList);
+		return companies.get(id);
 	}
 	
-	public Company changeAllEmployeeInCompany(Company company, long id, List<EmployeeDto> employeeDto) {
-		companies.get(id).setEmployeeList(employeeDto);
-		return company;
+	public Company changeAllEmployeeInCompany(Long id, List<Employee> employeeList) {
+		companies.get(id).setEmployeeList(employeeList);
+		return companies.get(id);
 	}
 }

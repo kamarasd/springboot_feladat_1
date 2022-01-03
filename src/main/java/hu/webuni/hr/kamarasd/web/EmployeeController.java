@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
-import hu.webuni.hr.kamarasd.service.DefaultEmployeeService;
+import hu.webuni.hr.kamarasd.service.EmployeeService;
 
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
 	
 	@Autowired
-	DefaultEmployeeService defaultEmployeeService;	
+	EmployeeService employeeService;	
 	
 	@Autowired
 	EmployeeMapper employeeMapper;
@@ -34,41 +34,41 @@ public class EmployeeController {
 	
 	@GetMapping
 	public List<EmployeeDto> getAll() {
-		return employeeMapper.employeeToDtos(defaultEmployeeService.getAll());
+		return employeeMapper.employeeToDtos(employeeService.getAll());
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<EmployeeDto> getById(@PathVariable Long id) {
 		
-		Employee employee = defaultEmployeeService.findById(id);
+		Employee employee = employeeService.findById(id);
 		return (employee != null ) ? ResponseEntity.ok(employeeMapper.employeeToDto(employee)) : ResponseEntity.notFound().build();
 	}
 	
 	@PostMapping
 	public EmployeeDto createEmployee(@RequestBody @Valid EmployeeDto employeeDto) {
-		Employee employee = defaultEmployeeService.saveEmployee(employeeMapper.dtoToEmployee(employeeDto));
+		Employee employee = employeeService.saveEmployee(employeeMapper.dtoToEmployee(employeeDto));
 		return employeeMapper.employeeToDto(employee);
 	}
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<EmployeeDto> changeEmployee(@PathVariable Long id, @RequestBody @Valid EmployeeDto employeeDto) {
-		if(defaultEmployeeService.findById(id) == null) {
+		if(employeeService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		Employee employee = defaultEmployeeService.changeEmployee(id, employeeMapper.dtoToEmployee(employeeDto));
+		Employee employee = employeeService.changeEmployee(id, employeeMapper.dtoToEmployee(employeeDto));
 		return ResponseEntity.ok(employeeMapper.employeeToDto(employee));
 	}
 	
 	@DeleteMapping("/{id}")
 	public void deleteEmployee(@PathVariable Long id) {
-		defaultEmployeeService.deleteEmployee(id);
+		employeeService.deleteEmployee(id);
 	}
 	
 	@GetMapping("/salaryLimit/{limit}")
 	public ResponseEntity<Collection<Employee>> salaryLimitCheck(@PathVariable Integer limit) {
 		
-	Collection<Employee> employee = defaultEmployeeService.salaryLimitCheck(limit);
+	Collection<Employee> employee = employeeService.salaryLimitCheck(limit);
 	
 	return (employee != null) ? ResponseEntity.ok(employee) : ResponseEntity.notFound().build();
 	}

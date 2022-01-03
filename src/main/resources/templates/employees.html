@@ -19,13 +19,15 @@
 			<th>Post</th>
 			<th>Salary</th>
 			<th>Working date</th>
+			<th></th>
 		</thead >
 		<tbody th:each="employees : ${employees}">
 			<th scope="row" th:text="${employees.employeeId}">id</th >
-			<td th:text="${employees.name}">name</td>
+			<td><a th:href="@{'/editEmployee/{id}' (id = ${employees.employeeId} ) }" th:text="${employees.name}">name</a></td>
 			<td th:text="${employees.post}">post</td>
 			<td th:text="${employees.salary}">salary</td>
 			<td th:text="${employees.workingDate}">workingdate</td>
+			<td><a th:href="@{'/deleteEmployee/{id}' (id=${employees.employeeId} ) }" th:object="${deleteEmployee}"class="btn btn-danger" >Töröl</a></td>
 		</tbody>
 	</table >
 	

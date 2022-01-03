@@ -7,7 +7,7 @@ import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.config.EmployeeConfigProperties;
 
 @Service
-public class DefaultEmployeeService extends EmployeeServiceClass implements EmployeeService{
+public class DefaultEmployeeService extends EmployeeService{
 	
 	@Autowired
 	EmployeeConfigProperties config;

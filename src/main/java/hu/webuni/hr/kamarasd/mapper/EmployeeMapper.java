@@ -15,5 +15,4 @@ public interface EmployeeMapper {
 	EmployeeDto employeeToDto(Employee employee);
 	
 	Employee dtoToEmployee(EmployeeDto employeeDto);
-
 }
