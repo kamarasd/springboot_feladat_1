@@ -3,8 +3,6 @@ package hu.webuni.hr.kamarasd.model;
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
 
@@ -12,14 +10,10 @@ public class Employee {
 
 	public Long employeeId;
 	
-	@NotEmpty(message = "Name is empty")
 	@NotBlank(message = "Name is blank")
-	@NotNull(message = "Name is null")
 	public String name;
-	
-	@NotEmpty(message = "Post is empty")
+
 	@NotBlank(message = "Post is blank")
-	@NotNull(message = "Post is null")
 	public String post;
 	
 	@Positive(message = "Salary must be positive number")
