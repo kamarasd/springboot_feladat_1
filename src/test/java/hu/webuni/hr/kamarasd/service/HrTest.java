@@ -50,6 +50,32 @@ public class HrTest {
 		assertThat(employeeDtoAfter.contains(employee));
 	}
 	
+	@Test
+	public void deleteEmployeeTest() throws Exception {
+		EmployeeDto employee = new EmployeeDto(13, "Teszt Elemér", "Tesztelő", 150000, LocalDateTime.parse("2022-01-04T17:00:00"));
+		
+		List<EmployeeDto> employeeDtoBefore = getEmployees();
+		deleteEmployee(employee);
+		List<EmployeeDto> employeeDtoAfter = getEmployees();
+		
+		assertThat(employeeDtoAfter.contains(employee));
+		assertThat(!employeeDtoBefore.contains(employee));
+		
+	}
+	
+	@Test
+	public void addBadEmployeeTest() throws Exception {
+		EmployeeDto employee = new EmployeeDto(12, "", "Tesztelő", 100000, LocalDateTime.parse("2022-01-04T17:00:00"));
+		
+		List<EmployeeDto> employeeDtoBefore = getEmployees();
+		addBadEmployee(employee);
+		List<EmployeeDto> employeeDtoAfter = getEmployees();
+		
+		assertThat(!employeeDtoBefore.contains(employee));
+		assertThat(!employeeDtoAfter.contains(employee));
+	}
+	
+	
 	private EmployeeDto changeEmployee(EmployeeDto employeeDto) {
 		String uri = BASE_URI + "/" + employeeDto.getEmployeeId();
 		
@@ -88,6 +114,29 @@ public class HrTest {
 			.expectStatus()
 			.isOk();	
 		
+	}
+	
+	private void deleteEmployee(EmployeeDto employeeDto) {
+		
+		String uri = BASE_URI + "/" + employeeDto.getEmployeeId();
+		
+		webTestClient
+				.delete()
+				.uri(uri)
+				.exchange()
+				.expectStatus()
+				.isOk();
+	}
+	
+	private void addBadEmployee(EmployeeDto employeeDto) {
+		
+		webTestClient
+			.post()
+			.uri(BASE_URI)
+			.bodyValue(employeeDto)
+			.exchange()
+			.expectStatus()
+			.isBadRequest();
 	}
 
 }
