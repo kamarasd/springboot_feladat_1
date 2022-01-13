@@ -2,12 +2,18 @@ package hu.webuni.hr.kamarasd.model;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
 
+@Entity
 public class Employee {
 
+	@Id
+	@GeneratedValue
 	public Long employeeId;
 	
 	@NotBlank(message = "Name is blank")

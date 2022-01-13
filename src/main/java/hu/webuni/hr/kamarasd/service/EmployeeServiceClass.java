@@ -1,54 +1,60 @@
 package hu.webuni.hr.kamarasd.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.webuni.hr.kamarasd.model.Employee;
+import hu.webuni.hr.kamarasd.repository.EmployeeRepository;
 
 @Service
 public class EmployeeServiceClass {
 
-	private Map<Long, Employee> employees = new HashMap<>();
-	
-	{
-		employees.put(1L, new Employee(1, "Bekő Tóni", "Alkalmazott", 200000, LocalDateTime.parse("2005-01-01T08:00:00")));
-		employees.put(2L, new Employee(2, "Matr Ica", "Alkalmazott", 150000, LocalDateTime.parse("2004-05-12T08:00:00")));
-	}
+	@Autowired
+	EmployeeRepository employeeRepository;
 	
 	public List<Employee> getAll() {
-		return new ArrayList<>(employees.values());
+		return employeeRepository.findAll();
 	}
 	
-	public Employee findById(Long id) {
-		return employees.get(id);
+	public Optional<Employee> findById(Long id) {
+		return employeeRepository.findById(id);
 	}
 	
+	@Transactional
 	public Employee saveEmployee(Employee employee) {
-		employees.put(employee.getEmployeeId(), employee);
-		return employee;
+		return employeeRepository.save(employee);
 	}
 	
+	@Transactional
 	public Employee changeEmployee(Long id, Employee employee) {
-		employees.put(id, employee);
-		return employee;
+		return employeeRepository.save(employee);
 	}
 	
 	public void deleteEmployee(Long id) {
-		employees.remove(id);
+		employeeRepository.deleteById(id);
 	}
 	
-	public Collection<Employee> salaryLimitCheck(Integer limit) {
-		Collection<Employee> emp = employees.entrySet().stream().
-				filter(employee -> employee.getValue().getSalary() > limit).
-				collect(Collectors.toMap(employee -> employee.getKey(),employee -> employee.getValue())).values();
-		return emp;
+	 public List<Employee> salaryLimitCheck(Integer limit) {
+		 return employeeRepository.findBySalaryGreaterThan(limit);
+	 }
+	 
+	
+	public List<Employee> findEmployeeByPost(String post) {
+		return employeeRepository.findByPostContainsIgnoreCase(post);
 	}
+	
+	public List<Employee> findEmployeeByName(String name) {
+		return employeeRepository.findByNameContainsIgnoreCase(name);
+	}
+	
+	public List<Employee> findEmployeeBetweenDate(LocalDateTime dateFrom, LocalDateTime dateTo) {
+		return employeeRepository.findAllByWorkingDateBetween(dateFrom, dateTo);
+	}
+	 
 	
 }
