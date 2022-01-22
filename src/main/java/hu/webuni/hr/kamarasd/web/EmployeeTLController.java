@@ -18,12 +18,6 @@ public class EmployeeTLController {
 	
 	private List<Employee> employeeList = new ArrayList<>();
 	
-	{
-		employeeList.add(new Employee(0, "Bekő Tóni", "Alkalmazott", 170000, LocalDateTime.parse("2005-05-13T08:00:00")));
-		employeeList.add(new Employee(1, " 2 Bekő Tóni", "Alkalmazott", 170000, LocalDateTime.parse("2005-05-13T08:00:00")));
-	}
-
-	
 	@GetMapping("/")
 	public String home() {
 		return "index";

@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
 import hu.webuni.hr.kamarasd.model.Company;
 import hu.webuni.hr.kamarasd.model.Employee;
+import hu.webuni.hr.kamarasd.repository.CompanyRepository;
+import hu.webuni.hr.kamarasd.repository.EmployeeRepository;
 
 @Service
 public class CompanyService {
@@ -20,61 +24,81 @@ public class CompanyService {
 	@Autowired
 	EmployeeMapper employeeMapper;
 	
-	private Map<Long, Company> companies = new HashMap<>();
+	@Autowired
+	CompanyRepository companyRepository;
 	
-	{
-		companies.put(1L, new Company(1, "Teszt cég", "asd", "asd", null));
-	}
+	@Autowired
+	EmployeeRepository employeeRepository;
 	
+	@Transactional
 	public Company saveCompany(Company company) {
-		companies.put(company.getId(), company);
-		return company;
+		return companyRepository.save(company);
 	}
 	
-	public List<Company> findAll(Boolean type) {
-		
-		if(type == true && type != null) { 
-			return companies
-					.values()
-					.stream()
-					.map(comp -> new Company(comp.getId(), comp.getCompanyNo(), comp.getCompanyName(), comp.getCompanyAddress(), null))
-					.collect(Collectors.toList());
-		} else {
-			return new ArrayList<>(companies.values());	
-		}
+	public List<Company> findAll() {
+		return companyRepository.findAll();
 	}
 	
-	public Company findById(Long id) {
-		return companies.get(id);
+	public Optional<Company> findById(Long id) {
+		return companyRepository.findById(id);
 	}
 	
+	@Transactional
 	public void deleteCompany(Long id) {
-		companies.remove(id);
+		companyRepository.deleteById(id);
 	}
 	
 	public List<Employee> getEmployeeFromCompany(Long id) {
-		return companies.get(id).getEmployeeList();
+		Company company = companyRepository.findById(id).get();
+		return company.getEmployeeList();
 	}
 	
-	public Company saveEmployeeToCompany(Long id, Employee employee) {
-		List<Employee> addEmployee = getEmployeeFromCompany(id);
-		addEmployee.add(employee);
-		companies.get(id).setEmployeeList(addEmployee);
-		return companies.get(id);
+	@Transactional
+	public Company saveEmployeeListToCompany(Long id, List<Employee> employees) {
+		Company company = companyRepository.findById(id).get();		
+		for (Employee emp: employees) {
+			company.addEmployee(emp);
+			employeeRepository.save(emp);
+		}
+		return company;
 	}
 	
+	@Transactional
 	public Company deleteEmployeeFromCompany(Long companyId, Long employeeId) {
-		companies.get(companyId).getEmployeeList().removeIf(employee -> employee.getEmployeeId() == employeeId);
-		return companies.get(companyId);
+		Company company = companyRepository.findById(companyId).get();
+		Employee employee = employeeRepository.findById(employeeId).get();
+		employee.setCompany(null);
+		company.getEmployeeList().remove(employee);
+		employeeRepository.save(employee);
+		
+		return company;
 	}
 	
-	public Company addEmployeeToCompany(Long id, List<Employee> employeeList) {
-		companies.get(id).setEmployeeList(employeeList);
-		return companies.get(id);
+	@Transactional
+	public Company addEmployeeToCompany(Long id, Employee employee) {
+		Company company = companyRepository.findById(id).get();
+		company.addEmployee(employee);
+		employeeRepository.save(employee);
+		
+		return company;
 	}
 	
+	@Transactional
 	public Company changeAllEmployeeInCompany(Long id, List<Employee> employeeList) {
-		companies.get(id).setEmployeeList(employeeList);
-		return companies.get(id);
+		Company company = companyRepository.findById(id).get();
+		company.getEmployeeList().forEach(e -> e.setCompany(null));
+		company.getEmployeeList().clear();
+		
+		for (Employee emp: employeeList) {
+			company.addEmployee(emp);
+			employeeRepository.save(emp);
+		}
+
+		return company;
+	}
+	
+	public Page<Company> findBySalaryLimit(Pageable pageable, Integer limit) {
+		Page<Company> company = companyRepository.findByCompanyWhereSalaryGraterThan(pageable, limit);
+		return company;
 	}
 }

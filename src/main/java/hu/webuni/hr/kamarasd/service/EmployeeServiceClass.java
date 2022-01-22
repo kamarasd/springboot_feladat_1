@@ -45,7 +45,7 @@ public class EmployeeServiceClass {
 	 
 	
 	public List<Employee> findEmployeeByPost(String post) {
-		return employeeRepository.findByPostContainsIgnoreCase(post);
+		return employeeRepository.findEmployeeByPosName(post);
 	}
 	
 	public List<Employee> findEmployeeByName(String name) {

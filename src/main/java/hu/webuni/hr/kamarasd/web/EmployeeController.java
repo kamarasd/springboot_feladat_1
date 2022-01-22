@@ -36,7 +36,7 @@ public class EmployeeController {
 	
 	@GetMapping
 	public List<EmployeeDto> getAll() {
-		return employeeMapper.employeeToDtos(employeeService.getAll());
+		return employeeMapper.employeesToDtos(employeeService.getAll());
 	}
 	
 	@GetMapping("/{id}")
@@ -69,22 +69,22 @@ public class EmployeeController {
 	
 	 @GetMapping("/salaryLimit/{limit}") 
 	 public List<EmployeeDto> salaryLimitCheck(@PathVariable Integer limit) {
-		 return employeeMapper.employeeToDtos(employeeService.salaryLimitCheck(limit));
+		 return employeeMapper.employeesToDtos(employeeService.salaryLimitCheck(limit));
 	 }
 	 
 	 @GetMapping("/findByPost/{post}") 
 	 public List<EmployeeDto> findEmployeeByPost (@PathVariable String post) {
-		 return employeeMapper.employeeToDtos(employeeService.findEmployeeByPost(post));
+		 return employeeMapper.employeesToDtos(employeeService.findEmployeeByPost(post));
 	 }
 	 
 	 @GetMapping("/findByName/{employeeName}")
 	 public List<EmployeeDto> findEmployeeByName (@PathVariable String employeeName) {
-		 return employeeMapper.employeeToDtos(employeeService.findEmployeeByName(employeeName));
+		 return employeeMapper.employeesToDtos(employeeService.findEmployeeByName(employeeName));
 	 }
 	 
 	 @GetMapping("/dateBetween/{dateFrom}/{dateTo}")
 	 public List<EmployeeDto> findEmployeeBetweenDate(@PathVariable String dateFrom, @PathVariable String dateTo) {
-		 return employeeMapper.employeeToDtos(employeeService.findEmployeeBetweenDate(LocalDateTime.parse(dateFrom), LocalDateTime.parse(dateTo)));
+		 return employeeMapper.employeesToDtos(employeeService.findEmployeeBetweenDate(LocalDateTime.parse(dateFrom), LocalDateTime.parse(dateTo)));
 	 }
 	 
 

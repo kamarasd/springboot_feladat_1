@@ -3,21 +3,33 @@ package hu.webuni.hr.kamarasd.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
+@Entity
 public class Company {
 
-
+	@Id
+	@GeneratedValue
 	private Long id;
 	private String companyNo;
 	private String companyName;
 	private String companyAddress;
-	private List<Employee> employeeList = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "company")
+	private List<Employee> employeeList;
+	
+	@ManyToOne
+	private CompanyDetails companyDetails;
+
 	public Company() {
 		
 	}
 	
-	public Company(long id, String companyNo, String companyName, String companyAddress, List<Employee> employeeList) {
-		this.id = id;
+	public Company(String companyNo, String companyName, String companyAddress, List<Employee> employeeList) {
 		this.companyNo = companyNo;
 		this.companyName = companyName;
 		this.companyAddress = companyAddress;
@@ -62,6 +74,23 @@ public class Company {
 
 	public void setEmployeeList(List<Employee> employeeList) {
 		this.employeeList = employeeList;
+	}
+	
+	public void addEmployee(Employee employee) {
+		if(this.employeeList == null) {
+			this.employeeList = new ArrayList<>();
+		}
+		
+		this.employeeList.add(employee);
+		employee.setCompany(this);
+	}
+	
+	public CompanyDetails getCompanyDetails() {
+		return companyDetails;
+	}
+
+	public void setCompanyDetails(CompanyDetails companyDetails) {
+		this.companyDetails = companyDetails;
 	}
 
 }

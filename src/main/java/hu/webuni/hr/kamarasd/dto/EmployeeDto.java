@@ -4,8 +4,6 @@ package hu.webuni.hr.kamarasd.dto;
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
 
@@ -25,6 +23,8 @@ public class EmployeeDto {
 	@Past(message = "Workingdate need to be in the past")
 	public LocalDateTime workingDate;
 	
+	private CompanyDto company;
+
 	public EmployeeDto(long id, String name, String post, Integer salary, LocalDateTime workingDate) {
 		super();
 		this.employeeId = id;
@@ -78,4 +78,16 @@ public class EmployeeDto {
 		this.workingDate = LocalDateTime.parse(workingDate);
 	}
 
+	public CompanyDto getCompany() {
+		return company;
+	}
+
+	public void setCompany(CompanyDto company) {
+		this.company = company;
+	}
+	
+	@Override
+	public String toString() {
+		return "Employee [employeeId ="+employeeId+", name="+name+", post="+post+", salary="+salary+", workingDate="+workingDate+" ]";
+	}
 }

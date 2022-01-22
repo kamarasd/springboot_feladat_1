@@ -1,10 +1,15 @@
 package hu.webuni.hr.kamarasd.web;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.SortDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,11 +20,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import hu.webuni.hr.kamarasd.model.Employee;
+import hu.webuni.hr.kamarasd.repository.CompanyRepository;
 import hu.webuni.hr.kamarasd.dto.CompanyDto;
+import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.CompanyMapper;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
+import hu.webuni.hr.kamarasd.model.AvarageSalaryByPosition;
 import hu.webuni.hr.kamarasd.model.Company;
 import hu.webuni.hr.kamarasd.service.CompanyService;
 import hu.webuni.hr.kamarasd.service.EmployeeService;
@@ -38,23 +47,29 @@ public class CompanyController {
 	EmployeeMapper employeeMapper;
 	
 	@Autowired
-	EmployeeService employeeService;
+	EmployeeService employeeService;	
+	
+	@Autowired
+	CompanyRepository companyRepository;
 
 	
 	@GetMapping
 	public List<CompanyDto> getAll(@RequestParam(required = false) Boolean type) {
-		 return companyMapper.companyToDtos(companyService.findAll(type));
+		 List<Company> employees = companyService.findAll();
+		 
+		 if(type == true) {
+			 return companyMapper.companiesToDtos(employees);
+		 } else {
+			 return companyMapper.companiesToSummaryDtos(employees);
+		 }
+		 
 	}
 	
 	@GetMapping("/{id}")
 	public CompanyDto getCompany(@PathVariable Long id) {
-		Company company = companyService.findById(id);
+		Company company = companyService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		return companyMapper.companyToDto(company);
 		
-		if(company != null) {
-			return companyMapper.companyToDto(company);
-		} else {
-			return null;
-		}
 	} 
 	
 	@PostMapping
@@ -65,62 +80,79 @@ public class CompanyController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<CompanyDto> changeCompany(@PathVariable Long id, @RequestBody CompanyDto companyDto) {
-		Company company = companyService.findById(id);
-		
-		if(company == null) {
+		if(companyService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		} else {
-			company.setId(id);
 			//Save employees to the modified company
-			List<Employee> employee = companyService.getEmployeeFromCompany(id);
-			company = companyService.saveCompany(companyMapper.dtoToCompany(companyDto));
-			companyService.addEmployeeToCompany(id, employee);
+			//List<Employee> employee = companyService.getEmployeeFromCompany(id);
+			Company company = companyService.saveCompany(companyMapper.dtoToCompany(companyDto));
+			//companyService.saveEmployeeListToCompany(id, employee);
 			return ResponseEntity.ok(companyMapper.companyToDto(company));
 		}
 		
 	}
 	
-	@DeleteMapping("{id}")
+	@DeleteMapping("/{id}")
 	public void deleteCompany(@PathVariable Long id) {
 		companyService.deleteCompany(id);
 	}
 	
 	@PostMapping("/addEmployee/{id}")
-	public ResponseEntity<CompanyDto> addEmployeeToCompany(@PathVariable Long id, @RequestBody @Valid Employee employeeList) {
-		Company company = companyService.findById(id);
-		if(company == null) {
-			return ResponseEntity.notFound().build();
+	public CompanyDto addEmployeeToCompany(@PathVariable Long id, @RequestBody @Valid EmployeeDto employeeDto) {
+		try {
+			return companyMapper
+					.companyToDto(companyService.addEmployeeToCompany(id, employeeMapper.dtoToEmployee(employeeDto)));
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
 		}
-
-		company = companyService.saveEmployeeToCompany(id, employeeList);
-		return ResponseEntity.ok(companyMapper.companyToDto(company));
 	}
 	
 	@DeleteMapping("/deleteEmployee/{id}/{employeeId}")
 	public ResponseEntity<CompanyDto> deleteEmployeeFromCompany(@PathVariable Long id, @PathVariable Long employeeId) {
-		Company company = companyService.findById(id);
-		if(company == null) {
+		if(companyService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		}
 		
-		companyService.deleteEmployeeFromCompany(id, employeeId);		
+		Company company = companyService.deleteEmployeeFromCompany(id, employeeId);		
 		return ResponseEntity.ok(companyMapper.companyToDto(company));
 	}
 	
 	@PostMapping("/updateAllEmployee/{id}")
 	public ResponseEntity<CompanyDto> updateEmployeesInCompany(@PathVariable Long id, @RequestBody @Valid List<Employee> employeeList) {
-		Company company = companyService.findById(id);
-		if(company == null) {
+		if(companyService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		}
 	
-		company = companyService.changeAllEmployeeInCompany(id, employeeList);
+		Company company = companyService.changeAllEmployeeInCompany(id, employeeList);
 		return ResponseEntity.ok(companyMapper.companyToDto(company));	
 	}
 	
 	@GetMapping("/raiseSalary")
 	public int getSalary(@RequestBody Employee employee) {
 		return employeeService.getPayRaisePercent(employee);
+		
+	}
+	
+	@GetMapping("/getSalaryLimit/{limit}/{pageable}")
+	public List<CompanyDto> getCompaniesBySalaryLimit(@PathVariable int limit, @SortDefault("id") Pageable pageable) {
+		Page<Company> companyPage = companyRepository.findByCompanyWhereSalaryGraterThan(pageable, limit);
+		System.out.println(companyPage.getTotalElements());
+		System.out.println(companyPage.isLast());
+		List<Company> companies = companyPage.getContent();
+		return companyMapper.companiesToSummaryDtos(companies);
+	}
+	
+	@GetMapping("/countEmployee/{limit}")
+	public List<CompanyDto> countEmployeesInCompanyByLimit(@PathVariable int limit) {
+		List<Company> company = companyRepository.getCompanyWhereEmployeesMoreThan(limit);
+		
+		return companyMapper.companiesToDtos(company);
+		
+	}
+	
+	@GetMapping("/getCompanyAvgSalary/{id}")
+	public List<AvarageSalaryByPosition> countEmployeesInCompanyByLimit(@PathVariable long id) {
+		return companyRepository.getAvarageSalaryByPosition(id);	
 		
 	}
 }

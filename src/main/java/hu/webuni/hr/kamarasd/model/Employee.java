@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
@@ -18,9 +19,6 @@ public class Employee {
 	
 	@NotBlank(message = "Name is blank")
 	public String name;
-
-	@NotBlank(message = "Post is blank")
-	public String post;
 	
 	@Positive(message = "Salary must be positive number")
 	public Integer salary;
@@ -28,15 +26,23 @@ public class Employee {
 	@Past(message = "Workingdate need to be in the past")
 	public LocalDateTime workingDate;
 	
+	@ManyToOne
+	public Company company;
+	
+	@ManyToOne
+	public Position position;
+
 	public Employee() {
 		
 	}
 	
-	public Employee(long employeeId, String name, String post, Integer salary, LocalDateTime workingDate) {
-
-		this.employeeId = employeeId;
+	public Employee(String name, Integer salary, LocalDateTime workingDate) {
 		this.name = name;
-		this.post = post;
+		this.salary = salary;
+		this.workingDate = workingDate;
+	}
+	
+	public Employee(int salary, LocalDateTime workingDate) {
 		this.salary = salary;
 		this.workingDate = workingDate;
 	}
@@ -57,14 +63,6 @@ public class Employee {
 		this.name = name;
 	}
 	
-	public String getPost() {
-		return post;
-	}
-	
-	public void setPost(String post) {
-		this.post = post;
-	}
-	
 	public Integer getSalary() {
 		return salary;
 	}
@@ -79,5 +77,21 @@ public class Employee {
 	
 	public void setWorkingDate(CharSequence workingDate) {
 		this.workingDate = LocalDateTime.parse(workingDate);
+	}
+
+	public Company getCompany() {
+		return company;
+	}
+
+	public void setCompany(Company company) {
+		this.company = company;
+	}
+	
+	public Position getPosition() {
+		return position;
+	}
+
+	public void setPosition(Position position) {
+		this.position = position;
 	}
 }
