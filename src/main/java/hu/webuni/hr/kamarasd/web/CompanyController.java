@@ -28,7 +28,7 @@ import hu.webuni.hr.kamarasd.dto.CompanyDto;
 import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.CompanyMapper;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
-import hu.webuni.hr.kamarasd.model.AvarageSalaryByPosition;
+import hu.webuni.hr.kamarasd.model.AverageSalary;
 import hu.webuni.hr.kamarasd.model.Company;
 import hu.webuni.hr.kamarasd.service.CompanyService;
 import hu.webuni.hr.kamarasd.service.EmployeeService;
@@ -147,13 +147,11 @@ public class CompanyController {
 		List<Company> company = companyRepository.getCompanyWhereEmployeesMoreThan(limit);
 		
 		return companyMapper.companiesToDtos(company);
-		
 	}
 	
 	@GetMapping("/getCompanyAvgSalary/{id}")
-	public List<AvarageSalaryByPosition> countEmployeesInCompanyByLimit(@PathVariable long id) {
-		return companyRepository.getAvarageSalaryByPosition(id);	
-		
+	public List<AverageSalary> countEmployeesInCompanyByLimit(@PathVariable long id) {
+		return companyRepository.getAvarageSalaryByPosition(id);		
 	}
 }
 
