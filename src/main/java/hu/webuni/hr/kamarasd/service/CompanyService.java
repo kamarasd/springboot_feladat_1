@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
+import hu.webuni.hr.kamarasd.model.AverageSalary;
 import hu.webuni.hr.kamarasd.model.Company;
 import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.repository.CompanyRepository;
@@ -29,6 +30,9 @@ public class CompanyService {
 	
 	@Autowired
 	EmployeeRepository employeeRepository;
+	
+	@Autowired
+	EmployeeService employeeService;
 	
 	@Transactional
 	public Company saveCompany(Company company) {
@@ -76,7 +80,8 @@ public class CompanyService {
 	
 	@Transactional
 	public Company addEmployeeToCompany(Long id, Employee employee) {
-		Company company = companyRepository.findById(id).get();
+		Company company = companyRepository.findByIdWithEmployees(id).get();
+		employeeService.setPositionForEmployee(employee);
 		company.addEmployee(employee);
 		employeeRepository.save(employee);
 		
@@ -100,5 +105,21 @@ public class CompanyService {
 	public Page<Company> findBySalaryLimit(Pageable pageable, Integer limit) {
 		Page<Company> company = companyRepository.findByCompanyWhereSalaryGraterThan(pageable, limit);
 		return company;
+	}
+
+	public int getPayRaisePercent(Employee employee) {
+		return employeeService.getPayRaisePercent(employee);
+	}
+	
+	public List<AverageSalary> getAvarageSalaryByPosition(Long id) {
+		return companyRepository.getAvarageSalaryByPosition(id);
+	}
+	
+	public List<Company> findAllWithEmployees() {
+		return companyRepository.getAllCompanyWithEmployees();
+	}
+	
+	public Optional<Company> findByIdWithEmployees(long id) {
+		return companyRepository.findByIdWithEmployees(id);
 	}
 }

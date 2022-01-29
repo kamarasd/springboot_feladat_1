@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hu.webuni.hr.kamarasd.model.Company;
 import hu.webuni.hr.kamarasd.model.Employee;
@@ -29,13 +30,15 @@ public class InitDbService {
 	@Autowired
 	CompanyDetailsRepository companyDetailsRepository ;
 	
+	@Transactional
 	public void clearDb() {
 		employeeRepository.deleteAll();
 		companyRepository.deleteAll();
 		positionRepository.deleteAll();
 		companyDetailsRepository.deleteAll();
 	}
-
+	
+	@Transactional
 	public void insertTestData() {
 		String pos1 = "Tester";
 		String pos2 = "Developer";
@@ -61,11 +64,5 @@ public class InitDbService {
 		e3.setPosition(p1);
 		e3.setCompany(c2);
 		employeeRepository.save(e3);
-		
-
-		
-		
-		
-	
 	}
 }

@@ -55,19 +55,21 @@ public class CompanyController {
 	
 	@GetMapping
 	public List<CompanyDto> getAll(@RequestParam(required = false) Boolean type) {
-		 List<Company> employees = companyService.findAll();
+		 List<Company> company = null;
 		 
 		 if(type == true) {
-			 return companyMapper.companiesToDtos(employees);
+			 company = companyService.findAllWithEmployees();
+			 return companyMapper.companiesToDtos(company);
 		 } else {
-			 return companyMapper.companiesToSummaryDtos(employees);
+			 company = companyService.findAll();
+			 return companyMapper.companiesToSummaryDtos(company);
 		 }
 		 
 	}
 	
 	@GetMapping("/{id}")
 	public CompanyDto getCompany(@PathVariable Long id) {
-		Company company = companyService.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Company company = companyService.findByIdWithEmployees(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		return companyMapper.companyToDto(company);
 		
 	} 
@@ -129,7 +131,7 @@ public class CompanyController {
 	
 	@GetMapping("/raiseSalary")
 	public int getSalary(@RequestBody Employee employee) {
-		return employeeService.getPayRaisePercent(employee);
+		return companyService.getPayRaisePercent(employee);
 		
 	}
 	
@@ -151,7 +153,7 @@ public class CompanyController {
 	
 	@GetMapping("/getCompanyAvgSalary/{id}")
 	public List<AverageSalary> countEmployeesInCompanyByLimit(@PathVariable long id) {
-		return companyRepository.getAvarageSalaryByPosition(id);		
+		return companyService.getAvarageSalaryByPosition(id);		
 	}
 }
 

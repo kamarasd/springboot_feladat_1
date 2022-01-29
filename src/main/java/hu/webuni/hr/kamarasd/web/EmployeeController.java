@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.dto.EmployeeDto;
 import hu.webuni.hr.kamarasd.mapper.EmployeeMapper;
+import hu.webuni.hr.kamarasd.service.CompanyService;
 import hu.webuni.hr.kamarasd.service.EmployeeService;
 
 @RestController
@@ -32,6 +33,9 @@ public class EmployeeController {
 	
 	@Autowired
 	EmployeeMapper employeeMapper;
+	
+	@Autowired
+	CompanyService companyService;
 
 	
 	@GetMapping
@@ -48,7 +52,10 @@ public class EmployeeController {
 	
 	@PostMapping
 	public EmployeeDto createEmployee(@RequestBody @Valid EmployeeDto employeeDto) {
-		Employee employee = employeeService.saveEmployee(employeeMapper.dtoToEmployee(employeeDto));
+		Employee employee = employeeMapper.dtoToEmployee(employeeDto);
+		employeeService.setPositionForEmployee(employee);
+		employeeService.saveEmployee(employee);
+		
 		return employeeMapper.employeeToDto(employee);
 	}
 	
@@ -85,6 +92,11 @@ public class EmployeeController {
 	 @GetMapping("/dateBetween/{dateFrom}/{dateTo}")
 	 public List<EmployeeDto> findEmployeeBetweenDate(@PathVariable String dateFrom, @PathVariable String dateTo) {
 		 return employeeMapper.employeesToDtos(employeeService.findEmployeeBetweenDate(LocalDateTime.parse(dateFrom), LocalDateTime.parse(dateTo)));
+	 }
+	 
+	 @GetMapping("/dataFinder")
+	 public List<EmployeeDto> findEmpByExample(@RequestBody EmployeeDto employeeDto) {
+		 return employeeMapper.employeesToDtos(employeeService.findEmployeeByExample(employeeMapper.dtoToEmployee(employeeDto)));
 	 }
 	 
 

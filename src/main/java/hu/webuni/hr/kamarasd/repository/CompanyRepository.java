@@ -2,6 +2,7 @@ package hu.webuni.hr.kamarasd.repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,7 +17,7 @@ public interface CompanyRepository extends JpaRepository<Company, Long>{
 	@Query("SELECT DISTINCT c FROM Company c JOIN c.employeeList e WHERE e.salary > :minSalary")
 	public Page<Company> findByCompanyWhereSalaryGraterThan(Pageable pageable, int minSalary);
 	
-	@Query("SELECT c FROM Company c WHERE SIZE(c.employeeList) > :employeeLimit")
+	@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList WHERE SIZE(c.employeeList) > :employeeLimit")
 	public List<Company> getCompanyWhereEmployeesMoreThan(int employeeLimit);
 	
 	@Query("SELECT e.position.posName AS posName, avg(e.salary) as avgSalary FROM Company c "
@@ -24,4 +25,10 @@ public interface CompanyRepository extends JpaRepository<Company, Long>{
 			+ "GROUP BY e.position.posName "
 			+ "ORDER BY avg(e.salary) DESC")
 	public List<AverageSalary> getAvarageSalaryByPosition(long id);
+	
+	@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList")
+	public List<Company> getAllCompanyWithEmployees();
+	
+	@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList WHERE c.id = :id")
+	public Optional<Company> findByIdWithEmployees(long id);
 }

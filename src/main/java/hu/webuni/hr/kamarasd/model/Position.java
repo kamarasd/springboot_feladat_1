@@ -24,6 +24,10 @@ public class Position {
 		this.minSalary = minSalary;
 	}
 	
+	public Position(String posName) {
+		this.posName = posName;
+	}
+	
 	public Long getId() {
 		return id;
 	}
