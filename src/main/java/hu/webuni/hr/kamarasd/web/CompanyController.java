@@ -120,12 +120,12 @@ public class CompanyController {
 	}
 	
 	@PostMapping("/updateAllEmployee/{id}")
-	public ResponseEntity<CompanyDto> updateEmployeesInCompany(@PathVariable Long id, @RequestBody @Valid List<Employee> employeeList) {
+	public ResponseEntity<CompanyDto> updateEmployeesInCompany(@PathVariable Long id, @RequestBody List<EmployeeDto> employeeList) {
 		if(companyService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		}
 	
-		Company company = companyService.changeAllEmployeeInCompany(id, employeeList);
+		Company company = companyService.changeAllEmployeeInCompany(id, employeeMapper.dtosToEmployees(employeeList));
 		return ResponseEntity.ok(companyMapper.companyToDto(company));	
 	}
 	

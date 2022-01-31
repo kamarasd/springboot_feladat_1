@@ -95,6 +95,7 @@ public class CompanyService {
 		company.getEmployeeList().clear();
 		
 		for (Employee emp: employeeList) {
+			employeeService.setPositionForEmployee(emp);
 			company.addEmployee(emp);
 			employeeRepository.save(emp);
 		}

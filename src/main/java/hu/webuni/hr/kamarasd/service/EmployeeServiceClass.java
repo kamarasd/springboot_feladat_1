@@ -67,7 +67,8 @@ public class EmployeeServiceClass {
 	
 	@Transactional
 	public void setPositionForEmployee(Employee employee) {
-		String posName = employee.getPosition().getPosName();	
+		String posName = employee.getPosition().getPosName();
+		//System.out.println(posName);
 		Position position;
 		
 		if(posName != null) {
@@ -76,7 +77,7 @@ public class EmployeeServiceClass {
 				position = positionRepository.save(new Position(posName));
 				employee.setPosition(position);
 			} else {
-				employee.setPosition(foundPosition.get(0));
+				employee.setPosition(foundPosition.get(0));		
 			}
 		}
 	}
@@ -90,7 +91,7 @@ public class EmployeeServiceClass {
 		if(employee.getWorkingDate() != null) {
 			workingDate = employee.getWorkingDate();
 		}
-		String company = employee.getCompany().getCompanyName() != null ? employee.getCompany().getCompanyName() : "";
+		String companyName = employee.getCompany() != null ? employee.getCompany().getCompanyName() : "";
 		
 		Specification<Employee> spec = Specification.where(null);
 		
@@ -114,8 +115,9 @@ public class EmployeeServiceClass {
 			spec = spec.and(DinamicEmployeeSearchService.startWorkingDate(workingDate));
 		}
 		
-		if(StringUtils.hasText(company) || company != null) {
-			spec = spec.and(DinamicEmployeeSearchService.hasCompany(company));
+		System.out.println(companyName);
+		if(StringUtils.hasText(companyName) || companyName != null) {
+			spec = spec.and(DinamicEmployeeSearchService.hasCompany(companyName));
 		}
 		
 		return employeeRepository.findAll(spec, Sort.by("employeeId"));

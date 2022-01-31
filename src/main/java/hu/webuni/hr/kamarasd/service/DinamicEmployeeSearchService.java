@@ -16,7 +16,7 @@ public class DinamicEmployeeSearchService {
 	}
 	
 	public static Specification<Employee> nameStartingWithIgnoreCase(String name) {
-		return (root, cq, cb) -> cb.like(root.get(Employee_.name), name + "%");
+		return (root, cq, cb) -> cb.like(cb.lower(root.get(Employee_.name)), name.toLowerCase() + "%");
 	}
 
 	public static Specification<Employee> hasPost(String post) {
@@ -35,7 +35,7 @@ public class DinamicEmployeeSearchService {
 	}
 
 	public static Specification<Employee> hasCompany(String company) {
-		return (root, cq, cb) -> cb.like(root.get(Employee_.company).get(Company_.companyName), company + "%");
+		return (root, cq, cb) -> cb.like(cb.lower(root.get(Employee_.company).get(Company_.companyName)), company.toLowerCase() + "%");
 	}
 
 	
