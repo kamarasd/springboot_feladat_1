@@ -67,18 +67,20 @@ public class CompanyTest {
 		CompanyDto returnedCompany = addTestCompany(companyMapper.companyToDto(company));
 		CompanyDto returnedEmployee = addTestEmployeeToCompany(employeeDto, returnedCompany.getId());
 		
-		List<Company> savedCompanyWithEmployee = getTestCompany(returnedCompany.getId());
+		CompanyDto savedCompanyWithEmployee = getTestCompany(returnedCompany.getId());
 
-		assertThat(savedCompanyWithEmployee).isNotEmpty();
-		assertThat(savedCompanyWithEmployee.get(0).getEmployeeList().get(0).getName())
+		assertThat(savedCompanyWithEmployee).isNotNull();
+		assertThat(savedCompanyWithEmployee.getEmployeeList().get(0).getName())
 			.isEqualTo(employeeDto.getName());
 		assertThat(returnedCompany.getCompanyName())
-			.isEqualTo(savedCompanyWithEmployee.get(0).getCompanyName());
+			.isEqualTo(savedCompanyWithEmployee.getCompanyName());
 		assertThat(returnedEmployee.getEmployeeList().get(0).getName())
-			.isEqualTo(savedCompanyWithEmployee.get(0).getEmployeeList().get(0).getName());
+			.isEqualTo(savedCompanyWithEmployee.getEmployeeList().get(0).getName());
+		assertThat(returnedEmployee.getEmployeeList().get(0).getPost())
+			.isEqualTo(savedCompanyWithEmployee.getEmployeeList().get(0).getPost());
 		assertThat(returnedEmployee.getEmployeeList().get(0).getSalary())
-			.isEqualTo(savedCompanyWithEmployee.get(0).getEmployeeList().get(0).getSalary());
-		assertThat(savedCompanyWithEmployee.get(0).getEmployeeList().get(0).getWorkingDate())
+			.isEqualTo(savedCompanyWithEmployee.getEmployeeList().get(0).getSalary());
+		assertThat(savedCompanyWithEmployee.getEmployeeList().get(0).getWorkingDate())
 			.isCloseTo(returnedEmployee.getEmployeeList().get(0).getWorkingDate(), new TemporalUnitWithinOffset(1, ChronoUnit.MICROS));
 		
 	}
@@ -92,21 +94,20 @@ public class CompanyTest {
 		  CompanyDto returnedCompany = addTestCompany(companyMapper.companyToDto(company));
 		  CompanyDto returnedEmployee = addTestEmployeeToCompany(employeeDto, returnedCompany.getId());
 			
-		  List<Company> savedCompanyWithEmployee = getTestCompany(returnedCompany.getId());
+		  CompanyDto savedCompanyWithEmployee = getTestCompany(returnedCompany.getId());
 		  
-		  Long savedEmployeeId = savedCompanyWithEmployee.get(0).getEmployeeList().get(0).getEmployeeId();
+		  Long savedEmployeeId = savedCompanyWithEmployee.getEmployeeList().get(0).getEmployeeId();
 
 		  deleteTestEmployeeInCompany(returnedCompany.getId(), savedEmployeeId);
 		  
-		  List<Company> savedCompDeletedEmpOpt = getTestCompany(returnedCompany.getId());
-		  assertThat(savedCompDeletedEmpOpt)
-		  	.isNotEmpty(); 
-		  assertThat(savedCompDeletedEmpOpt.get(0).getEmployeeList())
+		  CompanyDto savedCompDeletedEmpOpt = getTestCompany(returnedCompany.getId());
+		  
+		  assertThat(savedCompDeletedEmpOpt.getEmployeeList())
 		  	.isEmpty();
-		  assertThat(savedCompanyWithEmployee.get(0).getEmployeeList())
+		  assertThat(savedCompanyWithEmployee.getEmployeeList())
 		  	.isNotEmpty();
-		  assertThat(savedCompDeletedEmpOpt.get(0).getEmployeeList())
-		  	.isNotEqualTo(savedCompanyWithEmployee.get(0).getEmployeeList());
+		  assertThat(savedCompDeletedEmpOpt.getEmployeeList())
+		  	.isNotEqualTo(savedCompanyWithEmployee.getEmployeeList());
 	}
 	
 	@Test
@@ -119,17 +120,20 @@ public class CompanyTest {
 		 CompanyDto returnedEmployee = addTestEmployeeToCompany(employeeDto, returnedCompany.getId());
 			
 		 addTestEmployeeToCompany(employeeDto, returnedCompany.getId());
-		 List<Company> savedCompanyWithOriginalEmployee = getTestCompany(returnedCompany.getId());
+		 CompanyDto savedCompanyWithOriginalEmployee = getTestCompany(returnedCompany.getId());
 
 		 returnedEmployee.getEmployeeList().get(0).setName("Teszt Aladár"); 
+		 returnedEmployee.getEmployeeList().get(0).setPost("Developer"); 
 		 
 		 changeTestEmployeeInCompany(returnedEmployee.getEmployeeList(), returnedCompany.getId());
-		 List<Company> savedCompanyWithModifiedEmployee = getTestCompany(returnedCompany.getId());
+		 CompanyDto savedCompanyWithModifiedEmployee = getTestCompany(returnedCompany.getId());
 
-		 assertThat(savedCompanyWithModifiedEmployee)
-		 	.isNotEmpty(); 
-		 assertThat(savedCompanyWithOriginalEmployee.get(0).getEmployeeList().get(0).getName())
-		 	.isNotEqualTo(savedCompanyWithModifiedEmployee.get(0).getEmployeeList().get(0).getName());
+		 assertThat(savedCompanyWithModifiedEmployee.getEmployeeList())
+		 	.isNotEmpty();
+		 assertThat(savedCompanyWithOriginalEmployee.getEmployeeList().get(0).getName())
+		 	.isNotEqualTo(savedCompanyWithModifiedEmployee.getEmployeeList().get(0).getName());
+		 assertThat(savedCompanyWithOriginalEmployee.getEmployeeList().get(0).getPost())
+		 	.isNotEqualTo(savedCompanyWithModifiedEmployee.getEmployeeList().get(0).getPost());
 	}
 	
 	public EmployeeDto createEmployee() {
@@ -166,7 +170,7 @@ public class CompanyTest {
 		.getResponseBody();		
 	}
 	
-	public List<Company> getTestCompany(Long companyId) {
+	public CompanyDto getTestCompany(Long companyId) {
 		String uri = BASE_URI + "/" + companyId;
 		
 		return webTestClient
@@ -175,7 +179,7 @@ public class CompanyTest {
 				.exchange()
 				.expectStatus()
 				.isOk()
-				.expectBodyList(Company.class)
+				.expectBody(CompanyDto.class)
 				.returnResult()
 				.getResponseBody();
 	}

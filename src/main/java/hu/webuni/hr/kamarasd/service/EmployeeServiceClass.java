@@ -115,7 +115,6 @@ public class EmployeeServiceClass {
 			spec = spec.and(DinamicEmployeeSearchService.startWorkingDate(workingDate));
 		}
 		
-		System.out.println(companyName);
 		if(StringUtils.hasText(companyName) || companyName != null) {
 			spec = spec.and(DinamicEmployeeSearchService.hasCompany(companyName));
 		}
