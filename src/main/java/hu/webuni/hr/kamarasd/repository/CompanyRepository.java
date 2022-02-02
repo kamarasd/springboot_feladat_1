@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -26,9 +27,14 @@ public interface CompanyRepository extends JpaRepository<Company, Long>{
 			+ "ORDER BY avg(e.salary) DESC")
 	public List<AverageSalary> getAvarageSalaryByPosition(long id);
 	
-	@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList")
+	//@EntityGraph(attributePaths = "employeeList")
+	@EntityGraph(attributePaths = {"employeeList", "employeeList.position"})
+	//@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList")
+	@Query("SELECT c FROM Company c")
 	public List<Company> getAllCompanyWithEmployees();
 	
-	@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList WHERE c.id = :id")
+	@EntityGraph(attributePaths = {"employeeList", "employeeList.position"})
+	//@Query("SELECT DISTINCT c FROM Company c LEFT JOIN FETCH c.employeeList WHERE c.id = :id")
+	@Query("SELECT c FROM Company c WHERE c.id = :id")
 	public Optional<Company> findByIdWithEmployees(long id);
 }

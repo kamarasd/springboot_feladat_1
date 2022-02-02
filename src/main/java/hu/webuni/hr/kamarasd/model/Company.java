@@ -7,8 +7,18 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedSubgraph;
 import javax.persistence.OneToMany;
 
+@NamedEntityGraph(
+		name = "Company.full", attributeNodes = {
+		@NamedAttributeNode(value = "employeeList", subgraph = "employeesGraph") },
+		subgraphs = {@NamedSubgraph(name = "employeesGraph", attributeNodes = @NamedAttributeNode(value = "position")
+		)
+	}
+)
 @Entity
 public class Company {
 
