@@ -1,6 +1,5 @@
 package hu.webuni.hr.kamarasd.dto;
 
-
 import java.time.LocalDateTime;
 
 import javax.validation.constraints.NotBlank;

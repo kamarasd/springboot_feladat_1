@@ -28,7 +28,7 @@ public class Employee {
 	
 	@ManyToOne
 	public Company company;
-	
+
 	@ManyToOne
 	public Position position;
 
