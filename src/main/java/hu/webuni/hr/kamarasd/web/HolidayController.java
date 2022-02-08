@@ -56,13 +56,13 @@ public class HolidayController {
 		return holidayMapper.holidayToDto(holiday);
 	}
 	
-	@GetMapping("/pageable/{pageable}/{sorting}")
-	public List<HolidayDto> getOrderedPageableHoliday(@PathVariable int pageable, @PathVariable String sorting) {
+	@GetMapping("/pageable/{fromPage}/{tillPage}/{sorting}")
+	public List<HolidayDto> getOrderedPageableHoliday(@PathVariable int fromPage, @PathVariable int tillPage, @PathVariable String sorting) {
 		sorting = sorting.isEmpty() || sorting == null ? "id" : sorting;
-		Pageable page = PageRequest.of(pageable, 10, Sort.by(sorting));
+		Pageable page = PageRequest.of(fromPage, tillPage, Sort.by(sorting));
 		Page<Holiday> holidayPage = holidayService.findPageableHoliday(page);
 		System.out.println(holidayPage.getTotalElements());
-		System.out.println(holidayPage.isLast());
+		System.out.println(holidayPage.isLast());  
 		List<Holiday> holiday = holidayPage.getContent();
 		return holidayMapper.holidayToDtos(holiday);
 	}
