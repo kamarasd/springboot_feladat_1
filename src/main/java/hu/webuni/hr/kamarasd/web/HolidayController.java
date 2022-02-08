@@ -57,9 +57,9 @@ public class HolidayController {
 	}
 	
 	@GetMapping("/pageable/{pageable}/{sorting}")
-	public List<HolidayDto> getOrderedPageableHoliday(Pageable pageable, @PathVariable String sorting) {
+	public List<HolidayDto> getOrderedPageableHoliday(@PathVariable int pageable, @PathVariable String sorting) {
 		sorting = sorting.isEmpty() || sorting == null ? "id" : sorting;
-		Pageable page = PageRequest.of(0, pageable.getPageSize(), Sort.by(sorting));
+		Pageable page = PageRequest.of(pageable, 10, Sort.by(sorting));
 		Page<Holiday> holidayPage = holidayService.findPageableHoliday(page);
 		System.out.println(holidayPage.getTotalElements());
 		System.out.println(holidayPage.isLast());
@@ -68,9 +68,14 @@ public class HolidayController {
 	}
 	
 	@PostMapping
-	public Holiday saveHoliday(@RequestBody Holiday holiday) {
+	public ResponseEntity<Holiday> saveHoliday(@RequestBody Holiday holiday) {
+		List<Employee> createdBy = employeeService.findEmployeeByName(holiday.getCreatedBy());
+		List<Employee> approver = employeeService.findEmployeeByName(holiday.getSuperior());
+		if(createdBy.isEmpty() || approver.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
 		holidayService.saveHoliday(holiday);
-		return holiday;
+		return ResponseEntity.ok(holiday);
 	}
 	
 	@DeleteMapping("/{id}")
