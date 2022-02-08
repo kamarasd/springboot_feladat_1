@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import hu.webuni.hr.kamarasd.dto.HolidayDto;
 import hu.webuni.hr.kamarasd.mapper.HolidayMapper;
@@ -54,9 +56,11 @@ public class HolidayController {
 		return holidayMapper.holidayToDto(holiday);
 	}
 	
-	@GetMapping("/pageable/{pageable}")
-	public List<HolidayDto> getOrderedPageableHoliday(@SortDefault("id") Pageable pageable) {
-		Page<Holiday> holidayPage = holidayService.findPageableHoliday(pageable);
+	@GetMapping("/pageable/{pageable}/{sorting}")
+	public List<HolidayDto> getOrderedPageableHoliday(Pageable pageable, @PathVariable String sorting) {
+		sorting = sorting.isEmpty() || sorting == null ? "id" : sorting;
+		Pageable page = PageRequest.of(0, pageable.getPageSize(), Sort.by(sorting));
+		Page<Holiday> holidayPage = holidayService.findPageableHoliday(page);
 		System.out.println(holidayPage.getTotalElements());
 		System.out.println(holidayPage.isLast());
 		List<Holiday> holiday = holidayPage.getContent();
