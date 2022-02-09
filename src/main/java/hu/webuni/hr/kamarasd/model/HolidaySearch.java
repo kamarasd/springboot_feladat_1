@@ -8,7 +8,9 @@ public class HolidaySearch {
 	public Long id;
 	public LocalDate holidayDateFrom;
 	public LocalDate holidayDateTo;
-	public String name;
+	public String creatorName;
+	public String superiorName;
+	
 	public Approved approved;
 	public LocalDateTime setDateFrom;
 	public LocalDateTime setDateTo;
@@ -34,12 +36,6 @@ public class HolidaySearch {
 	public void setHolidayDateTo(LocalDate holidayDateTo) {
 		this.holidayDateTo = holidayDateTo;
 	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
 	public Approved getApproved() {
 		return approved;
 	}
@@ -58,8 +54,20 @@ public class HolidaySearch {
 	public void setSetDateTo(LocalDateTime setDateTo) {
 		this.setDateTo = setDateTo;
 	}
-	
-	
-	
+	public String getCreatorName() {
+		return creatorName;
+	}
+
+	public void setCreatorName(String creatorName) {
+		this.creatorName = creatorName;
+	}
+
+	public String getSuperiorName() {
+		return superiorName;
+	}
+
+	public void setSuperiorName(String superiorName) {
+		this.superiorName = superiorName;
+	}
 	
 }

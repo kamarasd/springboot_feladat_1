@@ -54,9 +54,12 @@ public class HolidayService {
 			spec = spec.and(DinamicHolidaySearchService.searchByApprove(holiday.getApproved()));
 		}
 		
-		if(holiday.getName() != null) {
-			spec = spec.and(DinamicHolidaySearchService.searchByName(holiday.getName()))
-					.or(spec.and(DinamicHolidaySearchService.searchBySuperior(holiday.getName())));
+		if(holiday.getSuperiorName() != null) {
+			spec = spec.and(DinamicHolidaySearchService.searchBySuperior(holiday.getSuperiorName()));
+		}
+		
+		if(holiday.getCreatorName() != null) {
+			spec = spec.and(DinamicHolidaySearchService.searchByCreator(holiday.getCreatorName()));
 		}
 		
 		if(holiday.getSetDateFrom().isBefore(LocalDateTime.of(0001, 01, 01, 00, 00)) && holiday.getSetDateTo().isBefore(LocalDateTime.of(0001, 01, 01, 00, 00))) {
@@ -71,7 +74,8 @@ public class HolidayService {
 		
 //	    {   "id": ,
 //	        "approved": "PENDING" or "NOT_APPROVED" or "APPROVED",
-//	        "name": "",
+//	        "superiorName": "",
+//			"creatorName": "",
 //	        "holidayDateFrom": "0001-01-01",
 //	        "holidayDateTo": "0001-01-01",
 //	        "setDateFrom": "0001-01-01T01:01:01",

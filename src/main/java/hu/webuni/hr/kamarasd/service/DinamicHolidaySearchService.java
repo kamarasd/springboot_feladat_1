@@ -31,7 +31,7 @@ public class DinamicHolidaySearchService {
 		return (root, cq, cb) -> cb.equal(root.get(Holiday_.approved), approved);
 	}
 	
-	public static Specification<Holiday> searchByName(String name) {
+	public static Specification<Holiday> searchByCreator(String name) {
 		return (root, cq, cb) -> cb.like(cb.lower(root.get(Holiday_.createdBy)), name.toLowerCase() + "%"); 
 	}
 	
