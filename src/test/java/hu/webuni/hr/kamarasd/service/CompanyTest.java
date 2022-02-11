@@ -7,11 +7,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import org.assertj.core.data.TemporalUnitWithinOffset;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import hu.webuni.hr.kamarasd.model.Employee;
@@ -58,9 +60,26 @@ public class CompanyTest {
 	@Autowired
 	InitDbService initDbService;
 	
+	@Autowired
+	PasswordEncoder passwordEncoder;
+	
+	private String username = "testuser";
+	private String password = "password";
+	
+	@BeforeEach
+	public void init () {
+		if(employeeRepository.findByUsername(username).isEmpty()) {
+			Employee employee = new Employee();
+			employee.setName("Teszt Ember");
+			employee.setUsername(username);
+			employee.setWorkingDate("2022-01-01T08:00:00");
+			employee.setPassword(passwordEncoder.encode(password));
+			employeeRepository.save(employee);
+		}
+	}
+	
 	@Test
 	public void testAddEmployeeToCompany() throws Exception {
-		initDbService.clearDb();
 		EmployeeDto employeeDto = createEmployee();
 		Company company = createCompany();
 		
@@ -87,7 +106,6 @@ public class CompanyTest {
 	
 	@Test
 	public void testDeleteEmployeeFromCompany() throws Exception {
-		  initDbService.clearDb(); 
 		  EmployeeDto employeeDto = createEmployee(); 
 		  Company company = createCompany();
  
@@ -112,7 +130,6 @@ public class CompanyTest {
 	
 	@Test
 	public void testModifyEmployeeInCompany() throws Exception {
-		 initDbService.clearDb(); 
 		 EmployeeDto employeeDto = createEmployee(); 
 		 Company company = createCompany();
 		 
@@ -148,40 +165,43 @@ public class CompanyTest {
 	
 	public CompanyDto addTestCompany(CompanyDto companyDto) {
 		 return webTestClient
-		.post()
-		.uri(BASE_URI)
-		.bodyValue(companyDto)
-		.exchange()
-		.expectBody(CompanyDto.class)
-		.returnResult()
-		.getResponseBody();	
+			.post()
+			.uri(BASE_URI)
+			.headers(headers -> headers.setBasicAuth(username, password))
+			.bodyValue(companyDto)
+			.exchange()
+			.expectBody(CompanyDto.class)
+			.returnResult()
+			.getResponseBody();	
 	}
 	
 	public CompanyDto addTestEmployeeToCompany(EmployeeDto employeeDto, Long companyId) {
 		String url = BASE_URI + "/addEmployee/" + companyId;
 		
 		return webTestClient
-		.post()
-		.uri(url)
-		.bodyValue(employeeDto)
-		.exchange()
-		.expectBody(CompanyDto.class)
-		.returnResult()
-		.getResponseBody();		
+			.post()
+			.uri(url)
+			.headers(headers -> headers.setBasicAuth(username, password))
+			.bodyValue(employeeDto)
+			.exchange()
+			.expectBody(CompanyDto.class)
+			.returnResult()
+			.getResponseBody();		
 	}
 	
 	public CompanyDto getTestCompany(Long companyId) {
 		String uri = BASE_URI + "/" + companyId;
 		
 		return webTestClient
-				.get()
-				.uri(uri)
-				.exchange()
-				.expectStatus()
-				.isOk()
-				.expectBody(CompanyDto.class)
-				.returnResult()
-				.getResponseBody();
+			.get()
+			.uri(uri)
+			.headers(headers -> headers.setBasicAuth(username, password))
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectBody(CompanyDto.class)
+			.returnResult()
+			.getResponseBody();
 	}
 	
 	public void changeTestEmployeeInCompany(List<EmployeeDto> employeeDto, Long companyId) {
@@ -190,6 +210,7 @@ public class CompanyTest {
 		webTestClient
 			.post()
 			.uri(uri)
+			.headers(headers -> headers.setBasicAuth(username, password))
 			.bodyValue(employeeDto)
 			.exchange()
 			.expectStatus()
@@ -203,6 +224,7 @@ public class CompanyTest {
 		webTestClient
 			.delete()
 			.uri(uri)
+			.headers(headers -> headers.setBasicAuth(username, password))
 			.exchange()
 			.expectStatus()
 			.isOk();

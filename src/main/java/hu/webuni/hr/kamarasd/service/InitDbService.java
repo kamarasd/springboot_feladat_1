@@ -3,6 +3,7 @@ package hu.webuni.hr.kamarasd.service;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,9 @@ public class InitDbService {
 	@Autowired
 	CompanyDetailsRepository companyDetailsRepository ;
 	
+	@Autowired
+	PasswordEncoder passwordEncoder;
+	
 	@Transactional
 	public void clearDb() {
 		employeeRepository.deleteAll();
@@ -50,8 +54,12 @@ public class InitDbService {
 		companyRepository.save(c1);
 		Employee e1 = new Employee("Bekő Tóni", 200000, LocalDateTime.parse("2005-05-13T08:00:00"));
 		e1.setPosition(p1);
+		e1.setUsername("user1");
+		e1.setPassword(passwordEncoder.encode("pass1"));
 		Employee e2 = new Employee("Matr Ica", 170000, LocalDateTime.parse("2015-05-13T08:00:00"));
 		e2.setPosition(p2);
+		e2.setUsername("user2");
+		e2.setPassword(passwordEncoder.encode("pass2"));
 		
 		e1.setCompany(c1);
 		employeeRepository.save(e1);

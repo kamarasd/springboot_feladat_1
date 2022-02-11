@@ -64,8 +64,10 @@ public class EmployeeController {
 		if(employeeService.findById(id) == null) {
 			return ResponseEntity.notFound().build();
 		}
-		
-		Employee employee = employeeService.changeEmployee(id, employeeMapper.dtoToEmployee(employeeDto));
+		Employee employee = employeeMapper.dtoToEmployee(employeeDto);
+		employeeService.setPositionForEmployee(employee);
+		employee.setEmployeeId(id);
+		employeeService.changeEmployee(id, employee);
 		return ResponseEntity.ok(employeeMapper.employeeToDto(employee));
 	}
 	

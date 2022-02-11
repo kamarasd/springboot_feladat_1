@@ -18,6 +18,7 @@ public interface EmployeeMapper {
 	@Mapping(target = "post", source = "position.posName")
 	@Mapping(target = "workingDate", source = "workingDate")
 	@Mapping(target = "company.employeeList", ignore = true)
+	//@Mapping(target = "password", ignore = true)
 	EmployeeDto employeeToDto(Employee employee);
 	
 	@InheritInverseConfiguration

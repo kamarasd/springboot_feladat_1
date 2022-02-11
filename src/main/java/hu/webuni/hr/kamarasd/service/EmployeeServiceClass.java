@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -26,6 +27,9 @@ public class EmployeeServiceClass {
 	@Autowired
 	PositionRepository positionRepository;
 	
+	@Autowired
+	PasswordEncoder passwordEncoder;
+	
 	public List<Employee> getAll() {
 		return employeeRepository.findAll();
 	}
@@ -36,11 +40,13 @@ public class EmployeeServiceClass {
 	
 	@Transactional
 	public Employee saveEmployee(Employee employee) {
+		employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 		return employeeRepository.save(employee);
 	}
 	
 	@Transactional
 	public Employee changeEmployee(Long id, Employee employee) {
+		employee.setPassword(passwordEncoder.encode(employee.getPassword()));
 		return employeeRepository.save(employee);
 	}
 	

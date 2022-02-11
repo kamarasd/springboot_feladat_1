@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,6 +69,7 @@ public class HolidayController {
 	}
 	
 	@PostMapping
+	@PreAuthorize("#holiday.createdBy == authentication.principal.employee.name")
 	public ResponseEntity<Holiday> saveHoliday(@RequestBody Holiday holiday) {
 		List<Employee> createdBy = employeeService.findEmployeeByName(holiday.getCreatedBy());
 		List<Employee> approver = employeeService.findEmployeeByName(holiday.getSuperior());
@@ -78,18 +80,20 @@ public class HolidayController {
 		return ResponseEntity.ok(holiday);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<HolidayDto> deleteById(@PathVariable Long id) {
+	@DeleteMapping("/{id}/{employeeId}")
+	@PreAuthorize("#employeeId == authentication.principal.employee.employeeId ")
+	public ResponseEntity<HolidayDto> deleteById(@PathVariable Long id, @PathVariable Long employeeId) {
 		Holiday holiday = holidayService.getHolidayById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		if(holidayService.HolidayIsPending(holiday.approved)) {
+		if(holiday.getId() != null) {
 			holidayService.deleteHolidayById(id);
 			return ResponseEntity.ok(holidayMapper.holidayToDto(holiday));
 		} else {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.unprocessableEntity().build();
 		}
 	}
 	
-	@PutMapping("approveHoliday/{id}/{approving}/{approverId}")
+	@GetMapping("/approveHoliday/{id}/{approving}/{approverId}")
+	@PreAuthorize("#approverId == authentication.principal.employee.employeeId ")
 	public ResponseEntity<HolidayDto> approveHoliday(@PathVariable Long id, @PathVariable Boolean approving, @PathVariable Long approverId) {
 		Holiday holiday = holidayService.getHolidayById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		Employee employee = employeeService.findById(approverId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -113,11 +117,13 @@ public class HolidayController {
 		}
 	}
 	
-	@PutMapping("/{id}")
-	public ResponseEntity<HolidayDto> modifyHolidayByCreator(@PathVariable Long id, @RequestBody HolidayDto holidayDto) {
+	@PutMapping("/{id}/{employeeId}")
+	@PreAuthorize("#employeeId == authentication.principal.employee.employeeId ")
+	public ResponseEntity<HolidayDto> modifyHolidayByCreator(@PathVariable Long id, @RequestBody HolidayDto holidayDto, @PathVariable Long employeeId) {
 		Holiday holiday = holidayService.getHolidayById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		if(holidayService.HolidayIsPending(holiday.approved)) {
 			holidayDto.setId(id);
+			holidayDto.setApproved(holiday.approved);
 			System.out.println(holidayDto.getHolidayEnd());
 			holidayService.saveHoliday(holidayMapper.dtoToHoliday(holidayDto));
 			return ResponseEntity.ok(holidayDto);

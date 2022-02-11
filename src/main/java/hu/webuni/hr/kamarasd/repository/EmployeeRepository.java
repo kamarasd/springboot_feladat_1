@@ -2,6 +2,7 @@ package hu.webuni.hr.kamarasd.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -19,5 +20,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSp
 	List<Employee> findAllByWorkingDateBetween(LocalDateTime dateFrom, LocalDateTime dateTo);
 	
 	List<Employee> findBySalaryGreaterThan(Integer salary);
+
+	Optional<Employee> findByUsername(String username);
 
 }

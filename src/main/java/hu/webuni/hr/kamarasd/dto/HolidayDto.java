@@ -12,7 +12,6 @@ import javax.validation.constraints.Future;
 
 import hu.webuni.hr.kamarasd.model.Approved;
 
-@Entity
 public class HolidayDto {
 	
 	@Id
@@ -25,7 +24,7 @@ public class HolidayDto {
 	@Future
 	public LocalDate holidayEnd;
 	
-	public String approved;
+	public Approved approved;
 
 	public LocalDateTime createdDate;
 	
@@ -37,7 +36,7 @@ public class HolidayDto {
 	//public List<Employee> employeeList;
 	
 	public HolidayDto() {
-		this.approved = "Not approved";
+		this.approved = Approved.NOT_APPROVED;
 		this.createdDate = LocalDateTime.now();
 	}
 	
@@ -45,7 +44,7 @@ public class HolidayDto {
 		String createdBy, String superior) {
 		this.holidayStart = holidayStart;
 		this.holidayEnd = holidayEnd;
-		this.approved = "Not approved";
+		this.approved = Approved.NOT_APPROVED;
 		this.createdDate = LocalDateTime.now();
 		this.createdBy = createdBy;
 		this.superior = superior;
@@ -99,14 +98,15 @@ public class HolidayDto {
 		this.holidayEnd = holidayEnd;
 	}
 
-	public String getApproved() {
+	public Approved getApproved() {
 		return approved;
 	}
 
-	public void setApproved(String approved) {
+	public void setApproved(Approved approved) {
 		this.approved = approved;
 	}
-	
+
+
 	
 	
 	

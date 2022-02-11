@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Positive;
@@ -26,12 +27,15 @@ public class Employee {
 	@Past(message = "Workingdate need to be in the past")
 	public LocalDateTime workingDate;
 	
+	public String username;
+	public String password;
+
 	@ManyToOne
 	public Company company;
 
 	@ManyToOne
 	public Position position;
-
+	
 	public Employee() {
 		
 	}
@@ -93,5 +97,21 @@ public class Employee {
 
 	public void setPosition(Position position) {
 		this.position = position;
+	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 }

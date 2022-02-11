@@ -101,7 +101,7 @@ public class HolidayService {
 		}
 	}
 	
-	public Approved getApproveType(Boolean approve){
+	public Approved getApproveType(Boolean approve) {
 		return approve == true ? Approved.APPROVED : Approved.NOT_APPROVED;
 	}
 	
