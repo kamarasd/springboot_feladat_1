@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,7 +20,7 @@ import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import hu.webuni.hr.kamarasd.config.LoginConfig;
+import hu.webuni.hr.kamarasd.config.HrConfigProperties;
 import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.model.HrUser;
 import hu.webuni.hr.kamarasd.repository.EmployeeRepository;
@@ -29,12 +31,21 @@ public class JwtService {
 	@Autowired
 	EmployeeRepository employeeRepository;
 	
-	LoginConfig loginConfig = new LoginConfig();
+	@Autowired
+	HrConfigProperties hrConfProp;
+
+	private Algorithm alg;
+	private String issuer;
+	private String auth;
+	private Integer logInMinutes;
 	
-	private Algorithm myAlg = loginConfig.getAlg();
-	private String AUTH = loginConfig.getAuth();
-	private String issuer = loginConfig.getIssuer();
-	private Integer loginTime = loginConfig.getMinutesLoggedIn();
+	@PostConstruct
+	public void init() {
+		issuer = hrConfProp.gethrConf().getIssuer();
+		alg = (Algorithm) Algorithm.HMAC256(hrConfProp.gethrConf().getSecret());
+		auth = hrConfProp.gethrConf().getAuth();
+		logInMinutes = hrConfProp.gethrConf().getMinutesLoggedIn();
+	}
 	
 	private static final String SUP_EMP_NAME = "superiored_user_full_name";
 	private static final String SUP_EMP_ID = "superiored_user_id";
@@ -45,7 +56,7 @@ public class JwtService {
 
 	public String createJwtToken(UserDetails principal) {
 		Builder jwt = JWT.create().withSubject(principal.getUsername())
-		.withArrayClaim(AUTH, principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray(String[]::new));
+		.withArrayClaim(auth, principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).toArray(String[]::new));
 		
 		Employee employee = ((HrUser) principal).getEmployee();
 		if(employee.getPosition().getPosName().contentEquals("Superior")) {
@@ -60,19 +71,19 @@ public class JwtService {
 		jwt.withClaim(EMP_USER, employee.getUsername());
 		jwt.withClaim(EMP_NAME, employee.getName());
 		
-		return jwt.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(loginTime))).withIssuer(issuer)
-				.sign(myAlg);
+		return jwt.withExpiresAt(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(logInMinutes))).withIssuer(issuer)
+				.sign(alg);
 		
 	}
 	
 	public UserDetails parseJwt(String jwtToken) {
-		DecodedJWT decodedJwt = JWT.require(myAlg)
+		DecodedJWT decodedJwt = JWT.require(alg)
 		.withIssuer(issuer)
 		.build()
 		.verify(jwtToken);
 		
 		return new User(decodedJwt.getSubject(), "dumdum", 
-				decodedJwt.getClaim(AUTH)
+				decodedJwt.getClaim(auth)
 				.asList(String.class)
 				.stream()
 				.map(SimpleGrantedAuthority::new)
