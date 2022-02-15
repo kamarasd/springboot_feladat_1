@@ -1,6 +1,7 @@
 package hu.webuni.hr.kamarasd.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,7 +141,6 @@ public class EmployeeServiceClass {
 //	        "workingDate": "0001-01-01T00:00:00",
 //	        "company": { "companyName" : ""}
 //	    }
+		
 	}
-	 
-	
 }

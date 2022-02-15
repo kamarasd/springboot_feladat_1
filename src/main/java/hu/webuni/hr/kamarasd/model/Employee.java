@@ -1,6 +1,8 @@
 package hu.webuni.hr.kamarasd.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,6 +38,8 @@ public class Employee {
 	@ManyToOne
 	public Position position;
 	
+	private String superior;
+
 	public Employee() {
 		
 	}
@@ -114,4 +118,14 @@ public class Employee {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	public String getSuperior() {
+		return superior;
+	}
+
+	public void setSuperior(String superior) {
+		this.superior = superior;
+	}
+
+	
 }

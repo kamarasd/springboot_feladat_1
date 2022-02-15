@@ -44,8 +44,8 @@ public class InitDbService {
 	
 	@Transactional
 	public void insertTestData() {
-		String pos1 = "Tester";
-		String pos2 = "Developer";
+		String pos1 = "Superior";
+		String pos2 = "Tester";
 		
 		Position p1 = positionRepository.save(new Position(pos1, Qualification.HIGH_SCHOOL, 200000));
 		Position p2 = positionRepository.save(new Position(pos2, Qualification.UNIVERSITY, 300000));
@@ -59,6 +59,7 @@ public class InitDbService {
 		Employee e2 = new Employee("Matr Ica", 170000, LocalDateTime.parse("2015-05-13T08:00:00"));
 		e2.setPosition(p2);
 		e2.setUsername("user2");
+		e2.setSuperior(e1.getName());
 		e2.setPassword(passwordEncoder.encode("pass2"));
 		
 		e1.setCompany(c1);
