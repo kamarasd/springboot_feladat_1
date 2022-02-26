@@ -17,16 +17,20 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import hu.webuni.hr.kamarasd.dto.LoginDto;
 import hu.webuni.hr.kamarasd.model.Approved;
 import hu.webuni.hr.kamarasd.model.Employee;
 import hu.webuni.hr.kamarasd.model.Holiday;
+import hu.webuni.hr.kamarasd.model.Position;
 import hu.webuni.hr.kamarasd.repository.EmployeeRepository;
+import hu.webuni.hr.kamarasd.repository.PositionRepository;
 
 @AutoConfigureTestDatabase
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class HolidayTest {
 	
 	private static final String BASE_URI = "api/holiday";
+	private static final String LOGIN_URI = "api/login";
 	
 	private String username = "testuser";
 	private String password = "password";
@@ -49,22 +53,31 @@ public class HolidayTest {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 	
+	@Autowired
+	PositionRepository positionRepository;
+	
 	@BeforeEach
 	public void init () {
 		if(employeeRepository.findByUsername(username).isEmpty()) {
+			Position position = positionRepository.save(new Position("Teszter"));
+			
 			Employee employee = new Employee();
 			employee.setName("Teszt Ember");
 			employee.setUsername(username);
 			employee.setWorkingDate("2022-01-01T08:00:00");
 			employee.setPassword(passwordEncoder.encode(password));
+			employee.setPosition(position);
 			employeeRepository.save(employee);
 		}
 	}
 	
 	@Test
 	public void testAddHoliday() throws Exception {
+		LoginDto login = new LoginDto(username, password);
+		String token = getToken(login);
+		
 		Holiday holiday = createNewTestHoliday();
-		Holiday returnedHoliday = addTestHoliday(holiday);
+		Holiday returnedHoliday = addTestHoliday(holiday, token);
 		
 		assertThat(returnedHoliday.getApproved()).isEqualTo(holiday.getApproved());
 		assertThat(returnedHoliday.getCreatedBy()).isEqualTo(holiday.getCreatedBy());
@@ -75,12 +88,15 @@ public class HolidayTest {
 	
 	@Test
 	public void testChangeApproved() throws Exception {
+		LoginDto login = new LoginDto(username, password);
+		String token = getToken(login);
+		
 		Holiday holiday = createNewTestHoliday();
-		Holiday returnedHoliday = addTestHoliday(holiday);
+		Holiday returnedHoliday = addTestHoliday(holiday, token);
 		
 		List<Employee> employee = employeeService.findEmployeeByName(holiday.getSuperior());
 
-		Holiday approveChanged = changeApprove(returnedHoliday.getId(), true, employee.get(0).getEmployeeId());
+		Holiday approveChanged = changeApprove(returnedHoliday.getId(), true, employee.get(0).getEmployeeId(), token);
 		assertThat(returnedHoliday.getApproved()).isNotEqualTo(approveChanged.getApproved());
 
 	}
@@ -102,32 +118,48 @@ public class HolidayTest {
 	
 	}
 	
-	public Holiday addTestHoliday(Holiday holiday) {
+	public Holiday addTestHoliday(Holiday holiday, String token) {
 
 		return webTestClient
 				.post()
 				.uri(BASE_URI)
-				.headers(headers -> headers.setBasicAuth(username, password))
+				.headers(headers -> headers.setBearerAuth(token))
 				.bodyValue(holiday)
 				.exchange()
+				.expectStatus()
+				.isOk()
 				.expectBody(Holiday.class)
 				.returnResult()
 				.getResponseBody();	
 	}
 	
-	public Holiday changeApprove(Long holidayId, Boolean approve, Long approverId) {
+	public Holiday changeApprove(Long holidayId, Boolean approve, Long approverId, String token) {
 		String uri = BASE_URI + "/approveHoliday/" + holidayId + "/" + approve + "/" + approverId;
 		
 		return webTestClient
 				.get()
 				.uri(uri)
-				.headers(headers -> headers.setBasicAuth(username, password))
+				.headers(headers -> headers.setBearerAuth(token))
 				.exchange()
+				.expectStatus()
+				.isOk()
 				.expectBody(Holiday.class)
 				.returnResult()
 				.getResponseBody();	
 	}
 	
-	
+	public String getToken(LoginDto loginDto) {
+			
+			return webTestClient
+				.post()
+				.uri(LOGIN_URI)
+				.bodyValue(loginDto)
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(String.class)
+				.returnResult()
+				.getResponseBody();
+		}
 
 }
