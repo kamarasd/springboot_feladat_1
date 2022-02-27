@@ -35,6 +35,12 @@ public class HolidayTest {
 	private String username = "testuser";
 	private String password = "password";
 	
+	private String SupUsername = "supUser";
+	private String SupPassword = "supPassword";
+	private String Superior = "Teszt Elek";
+	
+	public static long holidayId;
+	
 	@Autowired
 	HolidayService holidayService;
 	
@@ -67,17 +73,32 @@ public class HolidayTest {
 			employee.setWorkingDate("2022-01-01T08:00:00");
 			employee.setPassword(passwordEncoder.encode(password));
 			employee.setPosition(position);
+			employee.setSuperior(Superior);
 			employeeRepository.save(employee);
+		}
+		
+		if(employeeRepository.findByUsername(SupUsername).isEmpty()) {
+			Position position2 = positionRepository.save(new Position("Főnök"));
+			
+			Employee employee2 = new Employee();
+			employee2.setName(Superior);
+			employee2.setUsername(SupUsername);
+			employee2.setWorkingDate("2022-01-01T08:00:00");
+			employee2.setPassword(passwordEncoder.encode(SupPassword));
+			employee2.setPosition(position2);
+			employeeRepository.save(employee2);
 		}
 	}
 	
 	@Test
 	public void testAddHoliday() throws Exception {
+		
 		LoginDto login = new LoginDto(username, password);
 		String token = getToken(login);
 		
 		Holiday holiday = createNewTestHoliday();
 		Holiday returnedHoliday = addTestHoliday(holiday, token);
+		holidayId = returnedHoliday.getId();
 		
 		assertThat(returnedHoliday.getApproved()).isEqualTo(holiday.getApproved());
 		assertThat(returnedHoliday.getCreatedBy()).isEqualTo(holiday.getCreatedBy());
@@ -88,34 +109,23 @@ public class HolidayTest {
 	
 	@Test
 	public void testChangeApproved() throws Exception {
-		LoginDto login = new LoginDto(username, password);
+		Optional<Holiday> savedHoliday = holidayService.getHolidayById(holidayId);
+		
+		List<Employee> supEmployee = employeeService.findEmployeeByName(savedHoliday.get().getSuperior());
+	
+		LoginDto login = new LoginDto(SupUsername, SupPassword);
 		String token = getToken(login);
-		
-		Holiday holiday = createNewTestHoliday();
-		Holiday returnedHoliday = addTestHoliday(holiday, token);
-		
-		List<Employee> employee = employeeService.findEmployeeByName(holiday.getSuperior());
-
-		Holiday approveChanged = changeApprove(returnedHoliday.getId(), true, employee.get(0).getEmployeeId(), token);
-		assertThat(returnedHoliday.getApproved()).isNotEqualTo(approveChanged.getApproved());
-
+	
+		Holiday approveChanged = changeApprove(holidayId, true, supEmployee.get(0).getEmployeeId(), token);
+		assertThat(savedHoliday.get().getApproved()).isNotEqualTo(approveChanged.getApproved());
+		assertThat(approveChanged.getApproved()).isEqualTo(Approved.APPROVED);
 	}
 	
 	
 	public Holiday createNewTestHoliday() {
 		String creator = "Teszt Ember";
-		String boss = getHolidayEmployee();
-		Holiday holiday = new Holiday(LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), Approved.PENDING, creator, boss);
+		Holiday holiday = new Holiday(LocalDate.now().plusDays(1), LocalDate.now().plusDays(10), Approved.PENDING, creator, Superior);
 		return holiday;
-	}
-	
-	public String getHolidayEmployee() {
-		List<Employee> employee = employeeService.getAll();
-		int size = employee.size();
-		Random r = new Random();
-		int rand = r.nextInt(size);
-		return employee.get(rand).getName();
-	
 	}
 	
 	public Holiday addTestHoliday(Holiday holiday, String token) {
@@ -161,5 +171,4 @@ public class HolidayTest {
 				.returnResult()
 				.getResponseBody();
 		}
-
 }
