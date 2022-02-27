@@ -39,6 +39,7 @@ public class HolidayTest {
 	private String SupPassword = "supPassword";
 	private String Superior = "Teszt Elek";
 	
+	public static long superiorId;
 	public static long holidayId;
 	
 	@Autowired
@@ -87,6 +88,7 @@ public class HolidayTest {
 			employee2.setPassword(passwordEncoder.encode(SupPassword));
 			employee2.setPosition(position2);
 			employeeRepository.save(employee2);
+			superiorId = employee2.getEmployeeId();
 		}
 	}
 	
@@ -111,12 +113,10 @@ public class HolidayTest {
 	public void testChangeApproved() throws Exception {
 		Optional<Holiday> savedHoliday = holidayService.getHolidayById(holidayId);
 		
-		List<Employee> supEmployee = employeeService.findEmployeeByName(savedHoliday.get().getSuperior());
-	
 		LoginDto login = new LoginDto(SupUsername, SupPassword);
 		String token = getToken(login);
 	
-		Holiday approveChanged = changeApprove(holidayId, true, supEmployee.get(0).getEmployeeId(), token);
+		Holiday approveChanged = changeApprove(holidayId, true, superiorId, token);
 		assertThat(savedHoliday.get().getApproved()).isNotEqualTo(approveChanged.getApproved());
 		assertThat(approveChanged.getApproved()).isEqualTo(Approved.APPROVED);
 	}
