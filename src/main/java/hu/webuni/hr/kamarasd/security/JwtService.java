@@ -82,11 +82,16 @@ public class JwtService {
 		.build()
 		.verify(jwtToken);
 		
-		return new User(decodedJwt.getSubject(), "dumdum", 
+		Employee employee = new Employee();
+		employee.setEmployeeId(decodedJwt.getClaim(EMP_ID).asLong());
+		employee.setName(decodedJwt.getClaim(EMP_NAME).asString());
+		employee.setUsername(decodedJwt.getClaim(EMP_USER).asString());
+		
+		return new HrUser(decodedJwt.getSubject(), "dumdum", 
 				decodedJwt.getClaim(auth)
 				.asList(String.class)
 				.stream()
 				.map(SimpleGrantedAuthority::new)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList()), employee);
 	}
 }
